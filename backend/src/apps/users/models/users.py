@@ -11,6 +11,7 @@ from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from apps.users.models.position import Position
 
 
 class UserManager(BaseUserManager):
@@ -110,7 +111,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     patronymic = models.CharField(
         _('Отчество'), max_length=100, blank=True
     )
-
+    position = models.ForeignKey(
+        'Position',
+        on_delete=models.PROTECT,
+        verbose_name='Должность'
+    )
     date_joined = models.DateTimeField(
         verbose_name='Дата создания аккаунта',
         default=timezone.now
