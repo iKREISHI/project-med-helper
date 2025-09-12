@@ -1,0 +1,270 @@
+openapi: 3.0.3
+info:
+  title: Project Med API
+  version: 1.0.0
+  description: Automated workstation for the doctor on duty
+paths:
+  /api/v0/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Принимает имя пользователя и пароль. При успешной аутентификации
+        создаёт серверную сессию и возвращает минимальные данные пользователя.
+      summary: Вход в систему (создание сессии)
+      tags:
+      - Аутентификация
+      - Пользователи
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinimalUser'
+          description: ''
+        '400':
+          description: Ошибки валидации входных данных
+  /api/v0/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: |-
+        Создаёт нового пользователя по переданным данным. Пароль сохраняется в хешированном виде.
+
+        Аутентификация после регистрации не выполняется автоматически — используйте эндпоинт логина.
+      summary: Регистрация пользователя
+      tags:
+      - Аутентификация
+      - Пользователи
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinimalUser'
+          description: ''
+        '400':
+          description: Ошибки валидации входных данных
+  /api/v0/users/me/:
+    get:
+      operationId: users_me_retrieve
+      description: |-
+        Возвращает подробные данные текущего аутентифицированного пользователя.
+
+        Требуется активная сессия (cookie) или другая совместимая схема аутентификации.
+      summary: Текущий пользователь
+      tags:
+      - Пользователи
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v0/users/me/minimal/:
+    get:
+      operationId: users_me_minimal_retrieve
+      description: |-
+        Возвращает минимальный набор данных текущего аутентифицированного пользователя.
+
+        Требуется активная сессия (cookie) или другая совместимая схема аутентификации.
+      summary: Текущий пользователь (минимально)
+      tags:
+      - Пользователи
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinimalUser'
+          description: ''
+components:
+  schemas:
+    Login:
+      type: object
+      description: Простой сериализатор логина по username и password.
+      properties:
+        username:
+          type: string
+          title: Имя пользователя
+        password:
+          type: string
+          writeOnly: true
+          title: Пароль
+      required:
+      - password
+      - username
+    MinimalUser:
+      type: object
+      description: |-
+        Минимальный сериализатор пользователя для отображения основных атрибутов.
+
+        Назначение:
+        - Используется там, где нужен краткий профиль пользователя без служебных полей.
+        - Все поля только для чтения, чтобы не допускать записи через этот сериализатор.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          title: Имя пользователя
+        first_name:
+          type: string
+          readOnly: true
+          title: Имя
+        last_name:
+          type: string
+          readOnly: true
+          title: Фамилия
+        patronymic:
+          type: string
+          readOnly: true
+          title: Отчество
+      required:
+      - first_name
+      - id
+      - last_name
+      - patronymic
+      - username
+    Register:
+      type: object
+      description: |-
+        Сериализатор регистрации пользователя.
+
+        Ожидаемые входные поля:
+        - username: строка, обязательна
+        - password: строка, обязательна (write-only)
+        - first_name, last_name, patronymic: необязательные строки
+        - position: первичный ключ существующей должности (обязателен)
+
+        На выходе не содержит поле `password`.
+      properties:
+        username:
+          type: string
+          title: Имя пользователя
+          maxLength: 128
+        password:
+          type: string
+          writeOnly: true
+          title: Пароль
+          maxLength: 128
+        first_name:
+          type: string
+          title: Имя
+          maxLength: 100
+        last_name:
+          type: string
+          title: Фамилия
+          maxLength: 100
+        patronymic:
+          type: string
+          title: Отчество
+          maxLength: 100
+        position:
+          type: integer
+          title: Должность
+      required:
+      - password
+      - position
+      - username
+    User:
+      type: object
+      description: |-
+        Сериализатор для представления основных полей пользователя.
+
+        Примечания:
+        - Поле `position` отдаётся как первичный ключ связанной модели (по умолчанию
+          поведения DRF для ForeignKey). При необходимости можно заменить на
+          вложенный сериализатор или строковое представление.
+        - Дополнительно отдаем «похожим образом» отдельные поля `position_id` и
+          `position_name`, получая их из связанной модели `Position`.
+        - Поле `avatar` будет сериализовано как относительный путь/URL к файлу.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          title: Имя пользователя
+        first_name:
+          type: string
+          readOnly: true
+          title: Имя
+        last_name:
+          type: string
+          readOnly: true
+          title: Фамилия
+        patronymic:
+          type: string
+          readOnly: true
+          title: Отчество
+        position:
+          type: integer
+          readOnly: true
+          title: Должность
+        position_id:
+          type: integer
+          readOnly: true
+        position_name:
+          type: string
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания аккаунта
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Активный
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff
+        avatar:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          title: Аватар
+      required:
+      - avatar
+      - date_joined
+      - first_name
+      - id
+      - is_active
+      - is_staff
+      - last_name
+      - patronymic
+      - position
+      - position_id
+      - position_name
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
