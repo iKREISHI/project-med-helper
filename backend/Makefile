@@ -14,4 +14,4 @@ schema-api:
 	uv run src/manage.py spectacular --color --file schema.yml
 
 test:
-	uv run src/manage.py test apps --parallel
+	uv run src/manage.py test apps api --parallel
