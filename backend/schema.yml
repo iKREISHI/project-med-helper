@@ -31,6 +31,21 @@ paths:
           description: ''
         '400':
           description: Ошибки валидации входных данных
+  /api/v0/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: 'Завершает серверную сессию текущего пользователя. Операция идемпотентна:
+        если пользователь не был аутентифицирован, также возвращается 204.'
+      summary: Выход из системы (уничтожение сессии)
+      tags:
+      - Аутентификация
+      - Пользователи
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: Сессия уничтожена (или отсутствовала)
   /api/v0/auth/register/:
     post:
       operationId: auth_register_create
