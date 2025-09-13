@@ -5,10 +5,11 @@
 """
 from rest_framework.routers import DefaultRouter
 
-from .views import LoginViewSet, UsersViewSet, RegisterViewSet
+from .views import LoginViewSet, UsersViewSet, RegisterViewSet, LogoutViewSet
 
 router = DefaultRouter()
 router.register(r'auth/login', LoginViewSet, basename='login')
+router.register(r'auth/logout', LogoutViewSet, basename='logout')
 router.register(r'auth/register', RegisterViewSet, basename='register')
 router.register(r'users', UsersViewSet, basename='users')
 
