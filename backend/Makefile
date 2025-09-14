@@ -8,10 +8,41 @@ migrate:
 collect-static:
 	uv run src/manage.py collectstatic --no-input
 
-start-app: sync migrate collect-static
+copy-sample-env:
+	cp .env.sample .env
+
+start-docker-postgres:
+	docker compose --file ../docker-compose-local-dev.yml up postgres -d
+
+start-docker-redis:
+	docker compose --file ../docker-compose-local-dev.yml up redis -d
+
+start-docker-minio:
+	docker compose --file ../docker-compose-local-dev.yml up minio -d
+
+start-docker-qdrant:
+	docker compose --file ../docker-compose-local-dev.yml up qdrant -d
+
+start-docker-develop-environment: \
+		start-docker-postgres \
+		start-docker-redis \
+		start-docker-minio \
+		start-docker-qdrant
+
+start-app:  sync copy-sample-env \
+			start-docker-develop-environment \
+			migrate collect-static
 
 schema-api:
 	uv run src/manage.py spectacular --color --file schema.yml
 
 test:
 	uv run src/manage.py test apps api --parallel
+
+
+stop-docker-containers:
+	docker compose --file ../docker-compose-local-dev.yml stop
+
+down-docker-containers:
+	docker compose --file ../docker-compose-local-dev.yml down
+
