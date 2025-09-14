@@ -1,43 +1,38 @@
-import * as React from 'react'
+import * as React from "react";
 import { NavigationMenu } from "radix-ui";
-import Link from 'next/link'
-import classNames from "classnames";
-import styles from './header.module.css'
-import { CaretDownIcon } from '@radix-ui/react-icons' 
+import { CaretDownIcon } from "@radix-ui/react-icons";
+import styles from "./header.module.css";
 
-
-
-export function Header() {
+export const Header = () => {
   return (
     <NavigationMenu.Root className={styles.Root}>
       <NavigationMenu.List className={styles.MenuList}>
         <NavigationMenu.Item>
-        <NavigationMenu.Trigger
-          className={styles.Trigger}
-        >
-          Че-то еще <CaretDownIcon/>
-        </NavigationMenu.Trigger>
-      </NavigationMenu.Item>
-      <NavigationMenu.Item>
-        <NavigationMenu.Trigger className={styles.Trigger}>
-          Документы <CaretDownIcon />
-        </NavigationMenu.Trigger>
-        <NavigationMenu.Content className={styles.Content}>
-          <ul className={`${styles.List} two`}>
-            <li>
-              Отчеты
-            </li>
-          </ul>
-        </NavigationMenu.Content>
-      </NavigationMenu.Item>
-      <NavigationMenu.Item>
-        <NavigationMenu.Trigger
-        className={styles.Trigger}
-        >
-          Помощник <CaretDownIcon />
-        </NavigationMenu.Trigger>
-      </NavigationMenu.Item>
-    </NavigationMenu.List>
+          <NavigationMenu.Link className={styles.Link} href="#">
+            Документы
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Trigger className={styles.Trigger}>
+            Помощник
+            <CaretDownIcon className={styles.CaretDown} aria-hidden />
+          </NavigationMenu.Trigger>
+          <NavigationMenu.Content className={styles.Content}>
+            <ul className={styles.SubList}>
+              <li>
+                <NavigationMenu.Link className={styles.SubLink} href="#">
+                  Тупой
+                </NavigationMenu.Link>
+              </li>
+              <li>
+                <NavigationMenu.Link className={styles.SubLink} href="#">
+                  Умный
+                </NavigationMenu.Link>
+              </li>
+            </ul>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
     </NavigationMenu.Root>
-  )
-}
+  );
+};
