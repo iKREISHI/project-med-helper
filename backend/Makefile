@@ -2,7 +2,7 @@ sync:
 	uv sync
 
 migrate:
-	uv run src/manage.py makemigrations users
+	uv run src/manage.py makemigrations users docs_ingest
 	uv run src/manage.py migrate
 
 collect-static:

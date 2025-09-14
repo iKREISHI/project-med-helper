@@ -13,6 +13,7 @@ INSTALLED_APPS = [
 
     # Apps
     'apps.users.apps.UsersConfig',
+    'apps.docs_ingest.apps.DocsIngestConfig',
 
     # api
     'api.api_v0.apps.ApiV0Config',
