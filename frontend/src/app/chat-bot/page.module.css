@@ -1,0 +1,32 @@
+.RootPage {
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.Container {
+    display: flex;
+    flex-direction: row;  
+    justify-content: center; 
+    align-items: center;     
+    min-height: 80vh;        
+    margin: 0 auto;
+    max-width: 800px;        
+}
+
+.ChatContainer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.UserMessage {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.BotMessage {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+}

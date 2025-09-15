@@ -1,175 +1,80 @@
 .Root {
-	position: relative;
-	display: flex;
-	justify-content: center;
-	width: 100%;
-	z-index: 1;
-    margin: 10px;
-    box-shadow: 0 2px black;
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-4);
+  z-index: 10;
 }
 
-.MenuList{
-    display: flex;
-	justify-content: center;
-	background-color: white;
-	padding: 4px;
-	list-style: none;
-	margin: 0;
-
+.MenuList {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 2rem;
 }
 
 .Trigger,
 .Link {
-	all: unset;
-	padding: 8px 12px;
-	outline: none;
-	user-select: none;
-	font-weight: 500;
-	line-height: 1;
-	border-radius: 4px;
-	font-size: 15px;
-	color: var(--violet-11);
-    transition:ease-in;
-	&:focus {
-		box-shadow: 0 0 0 2px var(--violet-7);
-	}
-	&:hover {
-        transition:ease-in;
-		background-color: black;
-        color:white;
-	}
-    color: black;
+  all: unset;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.25s, color 0.25s;
+  text-decoration: none;
+  transition: background-color 0.25s;
+}
+
+.Trigger:hover,
+.Link:hover {
+  color: var(--accent-indicator);
+}
+
+.CaretDown {
+  transition: transform 0.3s ease;
+}
+
+.Trigger[data-state="open"] > .CaretDown {
+  transform: rotate(-180deg);
+}
+
+.Trigger[data-state="open"] {
+  color: var(--accent-indicator);
 }
 
 .Content {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	animation-duration: 250ms;
-	animation-timing-function: ease;
-	&[data-motion="from-start"] {
-		animation-name: enterFromLeft;
-	}
-	&[data-motion="from-end"] {
-		animation-name: enterFromRight;
-	}
-	&[data-motion="to-start"] {
-		animation-name: exitToLeft;
-	}
-	&[data-motion="to-end"] {
-		animation-name: exitToRight;
-	}
-	@media only screen and (min-width: 600px) {
-		width: auto;
-	}
+  position: absolute;
+  margin-top: 8px;
+  background: var(--gray-1);
+  border-radius: 12px;
+  box-shadow: 3px 5px 8px -4px var(--gray-5);
+  border: 1px solid var(--gray-4);
+  padding: 0.5em;
+  min-width: 180px;
+  overflow-y: auto;
+  z-index: 20;
 }
 
-
-.List {
-	display: grid;
-	padding: 22px;
-	margin: 0;
-	column-gap: 10px;
-	list-style: none;
-	@media only screen and (min-width: 600px) {
-		&:global(.one) {
-			width: 500px;
-			grid-template-columns: 0.75fr 1fr;
-		}
-		&:global(.two) {
-			width: 600px;
-			grid-auto-flow: column;
-			grid-template-rows: repeat(3, 1fr);
-		}
-	}
+.SubList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
 }
 
-
-
-
-
-
-@keyframes enterFromRight {
-	from {
-		opacity: 0;
-		transform: translateX(200px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
+.SubLink {
+  text-decoration: none;
+  padding: 0.6em 1em;
+  border-radius: var(--radius-1);
+  transition: background-color 0.25s, color 0.25s;
+  display: block;
 }
 
-@keyframes enterFromLeft {
-	from {
-		opacity: 0;
-		transform: translateX(-200px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
-}
-
-@keyframes exitToRight {
-	from {
-		opacity: 1;
-		transform: translateX(0);
-	}
-	to {
-		opacity: 0;
-		transform: translateX(200px);
-	}
-}
-
-@keyframes exitToLeft {
-	from {
-		opacity: 1;
-		transform: translateX(0);
-	}
-	to {
-		opacity: 0;
-		transform: translateX(-200px);
-	}
-}
-
-@keyframes scaleIn {
-	from {
-		opacity: 0;
-		transform: rotateX(-30deg) scale(0.9);
-	}
-	to {
-		opacity: 1;
-		transform: rotateX(0deg) scale(1);
-	}
-}
-
-@keyframes scaleOut {
-	from {
-		opacity: 1;
-		transform: rotateX(0deg) scale(1);
-	}
-	to {
-		opacity: 0;
-		transform: rotateX(-10deg) scale(0.95);
-	}
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-
-@keyframes fadeOut {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-	}
+.SubLink:hover,
+.SubLink:focus {
+  background-color: var(--accent-surface);
+  outline: none;
+  color: var(--accent-indicator);
 }

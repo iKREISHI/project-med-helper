@@ -1,7 +1,6 @@
-from rest_framework.routers import DefaultRouter
-
-router = DefaultRouter()
+from django.urls import include, path
 
 urlpatterns = [
-
-] + router.urls
+    path('', include('api.api_v0.users.urls')),
+    path('', include('api.api_v0.docs_ingest.urls'))
+]
