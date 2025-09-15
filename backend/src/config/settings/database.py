@@ -1,8 +1,6 @@
 from config.settings import BASE_DIR
+from .config import DATABASES_URL
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': DATABASES_URL
 }

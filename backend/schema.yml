@@ -75,6 +75,194 @@ paths:
           description: ''
         '400':
           description: Ошибки валидации входных данных
+  /api/v0/document/:
+    get:
+      operationId: v0_document_list
+      description: Возвращает список загруженных документов, отсортированных по дате
+        создания (DESC).
+      summary: Список документов
+      parameters:
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: (опц.) Поиск по title/source (если добавите фильтрацию)
+      tags:
+      - Documents
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentOut'
+          description: ''
+    post:
+      operationId: v0_document_create
+      description: Загружает файл (PDF/DOCX/...), создаёт запись и ставит в очередь
+        пайплайн парсинга/индексации.
+      summary: Загрузить документ
+      tags:
+      - Documents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentUpload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DocumentUpload'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentOut'
+              examples:
+                ЗагрузкаPDF:
+                  value:
+                    title: КР ХОБЛ
+                    source: upload
+                    language: ru
+                  summary: Загрузка PDF
+          description: ''
+  /api/v0/document/{id}/:
+    get:
+      operationId: v0_document_retrieve
+      summary: Получить документ
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Медицинский документ.
+        required: true
+      tags:
+      - Documents
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentOut'
+          description: ''
+  /api/v0/document/{id}/purge/:
+    delete:
+      operationId: v0_document_purge_destroy
+      description: Удаляет документ из БД и все связанные точки из Qdrant.
+      summary: Удалить документ и его эмбеддинги
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Медицинский документ.
+        required: true
+      tags:
+      - Documents
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v0/document/{id}/reindex/:
+    post:
+      operationId: v0_document_reindex_create
+      description: Повторно запускает пайплайн парсинга/чанкинга/эмбеддингов/апсерта
+        в Qdrant.
+      summary: Переиндексировать документ
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Медицинский документ.
+        required: true
+      tags:
+      - Documents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentOut'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DocumentOut'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v0/search/:
+    get:
+      operationId: v0_search_list
+      description: Ищет релевантные чанки по запросу `q`. `mode=vector` — чисто векторный
+        поиск, `mode=hybrid` — гибридный (вектор + полнотекст, если настроен индекс).
+        По умолчанию результаты ограничены документами текущего пользователя.
+      summary: Поиск по эмбеддингам (vector/hybrid) в Qdrant
+      parameters:
+      - in: query
+        name: doc_id
+        schema:
+          type: integer
+        description: (опц.) Фильтр по конкретному документу
+      - in: query
+        name: k
+        schema:
+          type: integer
+          default: 5
+        description: Количество результатов (top-k)
+      - in: query
+        name: mode
+        schema:
+          type: string
+          default: vector
+        description: 'Режим поиска: vector | hybrid'
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Поисковый запрос
+        required: true
+      - in: query
+        name: section
+        schema:
+          type: string
+        description: (опц.) Фильтр по названию/части названия раздела (payload.section)
+      tags:
+      - Search
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResponse'
+              examples:
+                ПримерЗапроса:
+                  value:
+                  - q: Противопоказания ингаляционных ГКС
+                    mode: vector
+                    k: 5
+                  summary: Пример запроса
+          description: ''
   /api/v0/users/me/:
     get:
       operationId: users_me_retrieve
@@ -115,6 +303,65 @@ paths:
           description: ''
 components:
   schemas:
+    DocumentOut:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 512
+        file:
+          type: string
+          format: uri
+        source:
+          type: string
+          maxLength: 128
+        content_type:
+          type: string
+          maxLength: 100
+        language:
+          type: string
+          maxLength: 16
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        error:
+          type: string
+        meta: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        owner:
+          type: integer
+          title: Владелец
+      required:
+      - created_at
+      - file
+      - id
+      - owner
+    DocumentUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 512
+        file:
+          type: string
+          format: uri
+        source:
+          type: string
+          maxLength: 128
+        language:
+          type: string
+          maxLength: 16
+      required:
+      - file
+      - id
     Login:
       type: object
       description: Простой сериализатор логина по username и password.
@@ -163,6 +410,14 @@ components:
       - last_name
       - patronymic
       - username
+    ModeEnum:
+      enum:
+      - vector
+      - hybrid
+      type: string
+      description: |-
+        * `vector` - vector
+        * `hybrid` - hybrid
     Register:
       type: object
       description: |-
@@ -204,6 +459,63 @@ components:
       - password
       - position
       - username
+    SearchHit:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+        doc_id:
+          type: integer
+        owner_id:
+          type: integer
+        idx:
+          type: integer
+        section:
+          type: string
+        page_from:
+          type: integer
+          nullable: true
+        page_to:
+          type: integer
+          nullable: true
+        text:
+          type: string
+      required:
+      - doc_id
+      - idx
+      - page_from
+      - page_to
+      - score
+      - section
+      - text
+    SearchResponse:
+      type: object
+      properties:
+        q:
+          type: string
+        mode:
+          $ref: '#/components/schemas/ModeEnum'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+      required:
+      - mode
+      - q
+      - results
+    StatusEnum:
+      enum:
+      - UPLOADED
+      - PARSED
+      - INDEXED
+      - FAILED
+      type: string
+      description: |-
+        * `UPLOADED` - Uploaded
+        * `PARSED` - Parsed
+        * `INDEXED` - Indexed
+        * `FAILED` - Failed
     User:
       type: object
       description: |-

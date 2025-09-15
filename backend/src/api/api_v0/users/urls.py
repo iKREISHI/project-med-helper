@@ -4,7 +4,6 @@
 Подключается в api/api_v0/urls.py через include.
 """
 from rest_framework.routers import DefaultRouter
-
 from .views import LoginViewSet, UsersViewSet, RegisterViewSet, LogoutViewSet
 
 router = DefaultRouter()

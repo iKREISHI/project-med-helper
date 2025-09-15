@@ -66,9 +66,12 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
 
-        # if not Position.objects.filter(name="Администратор").exists():
-        #     raise RuntimeError("Перед созданием суперпользователя необходимо выполнить `make entrypoint`"
-        #                        "для создания групп пользователей")
+        if not Position.objects.filter(name="Администратор системы").exists():
+            Position.objects.create(name="Администратор системы")
+
+        extra_fields.setdefault('position',
+                                Position.objects.filter(name="Администратор системы")
+                                .first())
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
