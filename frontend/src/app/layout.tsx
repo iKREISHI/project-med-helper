@@ -4,6 +4,7 @@ import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import { Header } from "@/1_widgets/header";
 import "./globals.css";
+import { Sidebar } from "@/4_shared";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
