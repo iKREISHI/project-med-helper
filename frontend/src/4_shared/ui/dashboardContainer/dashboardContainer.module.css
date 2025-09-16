@@ -1,0 +1,8 @@
+.Container {
+  padding: 20px;
+  border-radius: var(--radius-5);
+  box-shadow: var(--shadow-3);
+  width: 100%;
+  overflow: hidden;
+  background-color: white;
+}
