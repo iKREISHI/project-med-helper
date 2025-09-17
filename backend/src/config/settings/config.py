@@ -45,3 +45,7 @@ CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 QDRANT_URL = env("QDRANT_URL", default="http://127.0.0.1:6333")
 QDRANT_COLLECTION = env("QDRANT_COLLECTION", default="med_docs")
 EMB_MODEL = env("EMB_MODEL", default="BAAI/bge-m3")
+
+# LLM
+GIGACHAT_API_KEY = env("GIGACHAT_API_KEY", default="key" if not os.getenv("GIGACHAT_API_KEY") else os.getenv("GIGACHAT_API_KEY"))
+OPENROUTER_API_KEY = env('OPENROUTER_API_KEY', default="key" if not os.getenv("OPENROUTER_API_KEY") else os.getenv("OPENROUTER_API_KEY"))
