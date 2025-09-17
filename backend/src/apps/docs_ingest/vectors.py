@@ -7,7 +7,7 @@ import logging
 import platform
 
 from django.conf import settings
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient, models
 from qdrant_client.models import VectorParams, Distance, PointStruct, Filter, FieldCondition, MatchValue, FilterSelector
 from qdrant_client.http.models import (
     PayloadSchemaType,
@@ -269,23 +269,22 @@ def has_doc_points(doc_id: int, owner_id: Optional[int] = None) -> bool:
 
 
 def _build_filter(
-    *,
-    owner_id: Optional[int] = None,
-    doc_id: Optional[int] = None,
-    extra: Optional[Dict[str, Any]] = None,
-) -> Optional[Dict[str, Any]]:
-    """
-    Собирает dict-фильтр под qdrant_client (поддерживает простые match-фильтры).
-    """
-    must: List[Dict[str, Any]] = []
+        *,
+        owner_id=None,
+        doc_id=None,
+        extra: Optional[Dict[str, Any]] = None) -> Optional[models.Filter]:
+    must: List[models.FieldCondition] = []
     if owner_id is not None:
-        must.append({"key": "owner_id", "match": {"value": owner_id}})
+        must.append(models.FieldCondition(
+            key="owner_id", match=models.MatchValue(value=owner_id)))
     if doc_id is not None:
-        must.append({"key": "doc_id", "match": {"value": doc_id}})
+        must.append(models.FieldCondition(
+            key="doc_id", match=models.MatchValue(value=doc_id)))
     if extra:
         for k, v in extra.items():
-            must.append({"key": k, "match": {"value": v}})
-    return {"must": must} if must else None
+            must.append(models.FieldCondition(
+                key=k, match=models.MatchValue(value=v)))
+    return models.Filter(must=must) if must else None
 
 
 def vector_search(
@@ -332,27 +331,32 @@ def _lexical_score(query: str, text: str, section: str = "") -> float:
 
 
 def _full_text_candidates(
-    query: str,
-    *,
-    owner_id: Optional[int],
-    doc_id: Optional[int],
-    extra_filters: Optional[Dict[str, Any]],
-    limit: int,
-) -> List[Dict[str, Any]]:
-    """
-    Достаём кандидатов по полнотекстовому индексу через scroll + full_text.
-    Возвращает список payload'ов (без векторного score).
-    """
-    # Соберём фильтр: owner/doc/extra + full_text
-    flt = _build_filter(owner_id=owner_id, doc_id=doc_id, extra=extra_filters) or {"must": []}
-    flt["must"] = list(flt.get("must") or [])
-    flt["must"].append({
-        "full_text": {"keys": ["text", "section"], "text": query}
-    })
+        query: str, *, owner_id, doc_id,
+                          extra_filters, limit):
+    # то, что уже было
+    base = _build_filter(owner_id=owner_id,
+                         doc_id=doc_id,
+                         extra=extra_filters) or {}
+
+    # КОНВЕРТИРУЕМ dict → Filter, если нужно
+    if not isinstance(base, models.Filter):
+        base = models.Filter.parse_obj(base)
+
+    # добавляем OR-условия по полнотекстовому индексу
+    base.should = (base.should or []) + [
+        models.FieldCondition(
+            key="text",
+            match=models.MatchText(text=query)
+        ),
+        models.FieldCondition(
+            key="section",
+            match=models.MatchText(text=query)
+        ),
+    ]
 
     points, _ = _QDRANT.scroll(
         collection_name=_COLLECTION,
-        scroll_filter=flt,
+        scroll_filter=base,
         limit=limit,
         with_payload=True,
         with_vectors=False,
