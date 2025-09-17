@@ -2,11 +2,13 @@ import os
 from .openrouter import OpenRouterProvider
 from .gigachat   import GigaChatProvider
 from .ollama     import OllamaProvider
+from .llmstudio import LMStudioProvider
 
 _PROVIDERS = {
     "openrouter": OpenRouterProvider,
     "gigachat":   GigaChatProvider,
     "ollama":     OllamaProvider,
+    "llmstudio":  LMStudioProvider,
 }
 
 # читаем однажды при старте приложения;
