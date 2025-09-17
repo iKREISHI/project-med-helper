@@ -364,7 +364,7 @@ def _full_text_candidates(
     )
     return [p.payload or {} for p in points]
 
-
+# TODO: добавить rerank
 def hybrid_search(
     query: str,
     *,
