@@ -22,10 +22,11 @@ logger = logging.getLogger(__name__)
 
 _QDRANT = QdrantClient(url=getattr(settings, "QDRANT_URL", "http://127.0.0.1:6333"))
 _COLLECTION = getattr(settings, "QDRANT_COLLECTION", "med_docs")
-_MODEL_NAME = getattr(settings, "EMB_MODEL", "BAAI/bge-m3")
+_MODEL_NAME = getattr(settings, "EMB_MODEL", "ekaterinatao/nerel-bio-rubert-base")
 # Безопасная модель по умолчанию для CPU, не использующая сложных механизмов загрузки
 # через accelerate/meta‑тензоры и устойчиво работающая на macOS: 
-_FALLBACK_MODEL = getattr(settings, "EMB_MODEL_FALLBACK", "sentence-transformers/all-MiniLM-L6-v2")
+# _FALLBACK_MODEL = getattr(settings, "EMB_MODEL_FALLBACK", "sentence-transformers/all-MiniLM-L6-v2")
+_FALLBACK_MODEL = getattr(settings, "EMB_MODEL_FALLBACK", "ekaterinatao/nerel-bio-rubert-base")
 
 _model: Optional[SentenceTransformer] = None
 
