@@ -34,7 +34,6 @@ class GigaChatProvider(LLMProvider):
     # ---------- основной вызов ----------
     def _request(self, messages: list[ChatMessage], *, stream: bool, **params):
         prompt = self._to_prompt(messages)
-        print(self.credentials)
         # модель передаётся в конструктор клиента, stream — в метод chat()
         with GigaChat(
             credentials=self.credentials,
