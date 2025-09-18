@@ -109,12 +109,16 @@ paths:
       - Documents
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               $ref: '#/components/schemas/DocumentUpload'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/DocumentUpload'
+            examples:
+              ЗагрузкаPDF:
+                value:
+                  title: КР ХОБЛ
+                  source: upload
+                  language: ru
+                summary: Загрузка PDF
         required: true
       security:
       - cookieAuth: []
@@ -190,10 +194,7 @@ paths:
       - Documents
       requestBody:
         content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/DocumentOut'
-          application/x-www-form-urlencoded:
+          application/json:
             schema:
               $ref: '#/components/schemas/DocumentOut'
         required: true
@@ -263,6 +264,47 @@ paths:
                     k: 5
                   summary: Пример запроса
           description: ''
+  /api/v0/test_chat_api/:
+    post:
+      operationId: v0_test_chat_api_create
+      description: |-
+        /api/chat/  (POST → create)
+
+        Настраиваемые query-параметры:
+            mode     – 'vector' | 'hybrid'  (по умолчанию 'vector')
+            k        – int, количество фрагментов CONTEXT (по умолчанию 5)
+            doc_id   – int | None, фильтр документа
+            section  – str | None, фильтр секции/главы
+      summary: Unified chat completions (clinical & generic)
+      tags:
+      - chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              SimpleRequest:
+                value:
+                  messages:
+                  - role: user
+                    content: Какова доза статинов при высоком риске ИБС?
+                  stream: false
+                summary: Simple request
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+            text/event-stream:
+              schema:
+                type: string
+          description: Полный ответ LLM при «stream = false»
   /api/v0/users/me/:
     get:
       operationId: users_me_retrieve
@@ -303,6 +345,41 @@ paths:
           description: ''
 components:
   schemas:
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        content:
+          type: string
+      required:
+      - content
+      - role
+    ChatRequest:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        stream:
+          type: boolean
+          default: false
+        params:
+          type: object
+          additionalProperties: {}
+          description: Любые параметры, поддерживаемые моделью (temperature, top_p
+            …)
+      required:
+      - messages
+    ChatResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: Полный ответ LLM — возвращается, если stream=false
+      required:
+      - answer
     DocumentOut:
       type: object
       properties:
@@ -459,6 +536,16 @@ components:
       - password
       - position
       - username
+    RoleEnum:
+      enum:
+      - system
+      - user
+      - assistant
+      type: string
+      description: |-
+        * `system` - system
+        * `user` - user
+        * `assistant` - assistant
     SearchHit:
       type: object
       properties:
