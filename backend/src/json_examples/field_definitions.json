@@ -1,0 +1,18 @@
+[
+    {
+        "key": "complaints_symptoms",
+        "label": "Симптоматика и жалобы",
+        "field_type": "long_text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:2000"],
+        "validation_strategy": "both"
+    },
+    {
+        "key": "treatment_provided",
+        "label": "Проведенное лечение",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:2000"],
+        "validation_strategy": "both"
+    }
+]
