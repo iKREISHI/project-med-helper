@@ -3,17 +3,15 @@
     --back-color-sender: rgb(103, 207, 255);
 }
 .Root{
-    display: inline-flex;
-    justify-content: flex-start;
     background-color: var(--back-color);
-    padding: 10px;
+    padding: 20px;
     border-radius: 15px 15px 0px 15px;
 }
 
 .RootSender{
-    display: inline-flex;
-    justify-content: flex-start;
+    padding: 20px;
     background-color: var(--back-color-sender);
     padding: 10px;
     border-radius: 15px 15px 15px 0px;
 }
+
