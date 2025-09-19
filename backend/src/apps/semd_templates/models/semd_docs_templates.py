@@ -3,6 +3,9 @@ from .semd_fields import FieldDefinition
 
 
 class DocumentTemplate(models.Model):
+    """
+    Шаблон документа СЭМД под любые документы.
+    """
     name = models.CharField(
         max_length=255,
         verbose_name="Название шаблона",
@@ -40,6 +43,9 @@ class DocumentTemplate(models.Model):
 
 
 class TemplateField(models.Model):
+    """
+    Проходное поле для связи ManyToManyField
+    """
     template = models.ForeignKey(
         DocumentTemplate,
         on_delete=models.CASCADE,

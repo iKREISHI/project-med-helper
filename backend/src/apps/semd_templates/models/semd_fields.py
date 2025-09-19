@@ -21,6 +21,10 @@ class ValidationStrategy(models.TextChoices):
 
 
 class FieldDefinition(models.Model):
+    """
+    Простое поле используемое для создания документов.
+    Например: день рождения, ФИО, симптомы
+    """
     key = models.CharField(
         max_length=255,
         unique=True,
