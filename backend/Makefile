@@ -36,10 +36,17 @@ import-field-definitions:
 export-field-definitions:
 	uv run src/manage.py export_field_definitions_to_json
 
+import-document-templates:
+	uv run src/manage.py import_document_templates
+
+export-document-templates:
+	uv run src/manage.py export_document_templates
+
 start-app:  sync copy-sample-env \
 			start-docker-develop-environment \
 			migrate collect-static \
-			import-field-definitions
+			import-field-definitions \
+			import-document-templates
 
 schema-api:
 	uv run src/manage.py spectacular --color --file schema.yml

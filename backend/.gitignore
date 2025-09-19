@@ -44,3 +44,7 @@ media/
 celerybeat-schedule.bak
 celerybeat-schedule.dat
 celerybeat-schedule.dir
+
+# Json exports
+src/json_examples/document_templates_export.json
+src/json_examples/field_definitions_export.json
