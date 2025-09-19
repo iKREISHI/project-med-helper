@@ -10,6 +10,7 @@ collect-static:
 
 copy-sample-env:
 	cp .env.sample .env
+	cp ../.env.sample ../.env
 
 start-docker-postgres:
 	docker compose --file ../docker-compose-local-dev.yml up postgres -d
