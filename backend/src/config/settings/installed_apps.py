@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'apps.docs_ingest.apps.DocsIngestConfig',
     'apps.llm.apps.LlmConfig',
     'apps.semd_templates.apps.SemdTemplatesConfig',
+    'apps.chat.apps.ChatConfig',
 
     # api
     'api.api_v0.apps.ApiV0Config',
