@@ -8,7 +8,7 @@ export const Header = () => {
     <NavigationMenu.Root className={styles.Root}>
       <NavigationMenu.List className={styles.MenuList}>
         <NavigationMenu.Item>
-          <NavigationMenu.Link className={styles.Link} href="#">
+          <NavigationMenu.Link className={styles.Link} href="/url/documets">
             Документы
           </NavigationMenu.Link>
         </NavigationMenu.Item>
