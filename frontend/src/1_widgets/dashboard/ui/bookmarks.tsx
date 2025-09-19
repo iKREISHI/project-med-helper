@@ -6,7 +6,7 @@ export const Bookmarks = () => {
   return (
     <DashboardContainer>
       <Flex align="center" gap="2">
-        <Badge size="2" color="gray">
+        <Badge size="2">
           <BookmarkIcon />
           <Text>Закладки</Text>
         </Badge>

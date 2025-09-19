@@ -1,10 +1,9 @@
 .Container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-5);
-  padding: var(--space-5);
+  grid-template-columns: 4fr 2fr;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-4);
   min-height: calc(100vh - 60px);
-  box-sizing: border-box;
 }
 
 .Container > *:nth-child(2) {

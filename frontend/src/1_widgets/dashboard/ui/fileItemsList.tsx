@@ -1,12 +1,23 @@
+"use client";
 import { DashboardContainer } from "@/4_shared";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Badge, Box, DropdownMenu, Flex, Link, Text } from "@radix-ui/themes";
+import {
+  Box,
+  DropdownMenu,
+  Flex,
+  Link,
+  Separator,
+  Text,
+} from "@radix-ui/themes";
 import styles from "./files.module.css";
+import { fileTypeIcons } from "./fileTypeIcons";
+import { useRouter } from "next/navigation";
 
 interface FileItemProps {
   name: string;
   path: string;
   create_at: string;
+  type: string;
 }
 
 interface FileItemsListProps {
@@ -16,11 +27,37 @@ interface FileItemsListProps {
 export const FileItemsList = ({ files }: FileItemsListProps) => {
   return (
     <DashboardContainer>
-      <Flex align="center" justify="between" pb="20px">
-        <Box>
-          <Badge size="2" color="gray">
-            Часто используемые файлы
-          </Badge>
+      <Flex align="center" justify="between" pb="5">
+        <Box pl="2">
+          <Flex gap="3" align="center" wrap={{ initial: "wrap", sm: "nowrap" }}>
+            <Text
+              size="3"
+              style={{
+                wordBreak: "break-word",
+                minWidth: 0,
+                fontWeight: "500",
+              }}
+            >
+              Часто используемые
+            </Text>
+            {files?.length && (
+              <>
+                <Box display={{ initial: "none", sm: "block" }}>
+                  <Separator orientation="vertical" />
+                </Box>
+                <Box display={{ initial: "none", sm: "block" }}>
+                  <Text size="2" color="gray">
+                    {files.length}{" "}
+                    {files.length === 1
+                      ? "файл"
+                      : files.length < 5
+                      ? "файла"
+                      : "файлов"}
+                  </Text>
+                </Box>
+              </>
+            )}
+          </Flex>
         </Box>
 
         <DropdownMenu.Root>
@@ -35,15 +72,17 @@ export const FileItemsList = ({ files }: FileItemsListProps) => {
         </DropdownMenu.Root>
       </Flex>
 
-      <Flex direction="column" gap="10px" height="100%">
+      <Flex direction="column" gap="1" height="100%">
         {files ? (
           files?.map((file, index) => (
-            <FileItem
-              key={index}
-              name={file.name}
-              path={file.path}
-              create_at={file.create_at}
-            />
+            <div key={index}>
+              <FileItem
+                name={file.name}
+                path={file.path}
+                create_at={file.create_at}
+                type={file.type}
+              />
+            </div>
           ))
         ) : (
           <Flex align="center" justify="center" height="100%">
@@ -57,35 +96,64 @@ export const FileItemsList = ({ files }: FileItemsListProps) => {
   );
 };
 
-const FileItem = ({ name, path, create_at }: FileItemProps) => {
+const FileItem = ({ name, path, create_at, type }: FileItemProps) => {
+  const icon = fileTypeIcons[type.toLowerCase()] || fileTypeIcons.default;
+  const router = useRouter();
   return (
-    <DashboardContainer
-      style={{ boxShadow: "none", border: "1px solid var(--gray-4)", backgroundColor: 'var(--accent-1)' }}
+    <Box
+      style={{
+        boxShadow: "none",
+        padding: "var(--space-2)",
+        cursor: "pointer",
+      }}
+      onClick={() => {
+        router.push(path);
+      }}
+      className={styles.DashboardContainerItem}
     >
-      <Flex align="center" justify="between" gap="3">
-        <Link href={path} size="2" className={styles.TruncateOneLine}>
-          {path}
-        </Link>
-        <Text
-          size="1"
-          color="gray"
-          style={{
-            flexShrink: 0,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {create_at}
-        </Text>
+      <Flex width="100%" gap="3" align="start">
+        <Box className={styles.IconsFiles}>
+          <img src={`icons/${icon.icon}`} alt="" />
+        </Box>
+
+        <Box style={{ flex: 1, minWidth: 0 }}>
+          <Text
+            size="3"
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              display: "block",
+              width: "100%",
+              fontWeight: "500",
+            }}
+            title={name}
+          >
+            {name}
+          </Text>
+          <Flex align="center" justify="between" gap="3" width="100%">
+            <Link
+              href={path}
+              size="2"
+              color="gray"
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "250px",
+                flexShrink: 1,
+                display: "block",
+              }}
+              title={path}
+            >
+              {path}
+            </Link>
+            <Text size="1" color="gray">
+              {create_at}
+            </Text>
+          </Flex>
+        </Box>
       </Flex>
-      <Text
-        size="3"
-        weight="bold"
-        className={styles.TruncateOneLine}
-        style={{ display: "block" }}
-        title={name}
-      >
-        {name}
-      </Text>
-    </DashboardContainer>
+    </Box>
   );
 };

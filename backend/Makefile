@@ -2,7 +2,7 @@ sync:
 	uv sync
 
 migrate:
-	uv run src/manage.py makemigrations users docs_ingest
+	uv run src/manage.py makemigrations users docs_ingest llm semd_templates
 	uv run src/manage.py migrate
 
 collect-static:
@@ -29,9 +29,24 @@ start-docker-develop-environment: \
 		start-docker-minio \
 		start-docker-qdrant
 
+
+import-field-definitions:
+	uv run src/manage.py import_field_definitions_from_json
+
+export-field-definitions:
+	uv run src/manage.py export_field_definitions_to_json
+
+import-document-templates:
+	uv run src/manage.py import_document_templates
+
+export-document-templates:
+	uv run src/manage.py export_document_templates
+
 start-app:  sync copy-sample-env \
 			start-docker-develop-environment \
-			migrate collect-static
+			migrate collect-static \
+			import-field-definitions \
+			import-document-templates
 
 schema-api:
 	uv run src/manage.py spectacular --color --file schema.yml

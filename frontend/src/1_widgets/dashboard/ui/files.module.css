@@ -7,8 +7,9 @@
 }
 
 .backgroundContainer {
-  background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-4) 0%, var(--accent-4) 100%);
   width: 100%;
+  box-shadow: 0 4px 10px -4px var(--accent-6);
 }
 
 .TruncateOneLine {
@@ -38,29 +39,44 @@
   color: var(--gray-10);
 }
 
-.detailsGrid {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 12px 24px;
+.IconsFiles {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: rgba(117, 117, 117, 0.06);
+  padding: 0.5em;
+  border-radius: var(--radius-3);
 }
 
-.detailRow {
-  display: contents;
+.IconsFiles img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
 }
 
-.detailLabel {
-  color: var(--gray-7);
-  white-space: nowrap;
+.IconDetails {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 0.5em;
+  border-radius: var(--radius-3);
 }
 
-.TruncateOneLine {
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.IconDetails img {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
 }
 
-.detailRowDescription {
-  grid-column: 1 / -1;
-  margin-top: 8px;
+.DashboardContainerItem {
+  border-radius: var(--radius-3);
+}
+
+.DashboardContainerItem:hover {
+  background-color: var(--accent-2);
 }
