@@ -1,0 +1,185 @@
+[
+    {
+        "name": "Эпикриз",
+        "slug": "epikriz",
+        "description": "Выписной - документ, оформляемым при выписке пациента из стационара или переводе в другое отделение. Его оформление регламентируется рядом нормативных актов Российской Федерации, в частности, Приказом Министерства здравоохранения РФ от 5 августа 2022 года № 530н",
+        "fields": [
+            {
+                "key": "medical_organization",
+                "label": "Наименование медицинской организации",
+                "field_type": "text",
+                "required": true,
+                "server_validators": [
+                    "not_empty",
+                    "max_length:500"
+                ],
+                "validation_strategy": "server",
+                "order": 0
+            },
+            {
+                "key": "department",
+                "label": "Наименование отделения",
+                "field_type": "text",
+                "required": true,
+                "server_validators": [
+                    "not_empty",
+                    "max_length:255"
+                ],
+                "validation_strategy": "server",
+                "order": 0
+            },
+            {
+                "key": "medical_card_number",
+                "label": "Номер медицинской карты",
+                "field_type": "text",
+                "required": true,
+                "server_validators": [
+                    "not_empty",
+                    "max_length:100"
+                ],
+                "validation_strategy": "server",
+                "order": 0
+            },
+            {
+                "key": "full_name",
+                "label": "ФИО",
+                "field_type": "text",
+                "required": true,
+                "server_validators": [
+                    "not_empty",
+                    "max_length:255"
+                ],
+                "validation_strategy": "server",
+                "order": 0
+            },
+            {
+                "key": "date_of_birth",
+                "label": "Дата рождения",
+                "field_type": "date",
+                "required": true,
+                "server_validators": [],
+                "validation_strategy": "server",
+                "order": 0
+            },
+            {
+                "key": "address",
+                "label": "Адрес",
+                "field_type": "long_text",
+                "required": false,
+                "server_validators": [
+                    "max_length:1000"
+                ],
+                "validation_strategy": "server",
+                "order": 0
+            },
+            {
+                "key": "diagnosis",
+                "label": "Диагноз",
+                "field_type": "text",
+                "required": true,
+                "server_validators": [
+                    "not_empty",
+                    "max_length:500"
+                ],
+                "validation_strategy": "both",
+                "order": 0
+            },
+            {
+                "key": "treatment_provided",
+                "label": "Проведенное лечение",
+                "field_type": "long_text",
+                "required": false,
+                "server_validators": [
+                    "max_length:2000"
+                ],
+                "validation_strategy": "both",
+                "order": 0
+            },
+            {
+                "key": "complications",
+                "label": "Осложнения",
+                "field_type": "long_text",
+                "required": false,
+                "server_validators": [
+                    "max_length:1000"
+                ],
+                "validation_strategy": "both",
+                "order": 0
+            },
+            {
+                "key": "prognosis",
+                "label": "Прогноз",
+                "field_type": "long_text",
+                "required": false,
+                "server_validators": [
+                    "max_length:1000"
+                ],
+                "validation_strategy": "both",
+                "order": 0
+            },
+            {
+                "key": "recommendations",
+                "label": "Рекомендации",
+                "field_type": "long_text",
+                "required": false,
+                "server_validators": [
+                    "max_length:1000"
+                ],
+                "validation_strategy": "both",
+                "order": 0
+            },
+            {
+                "key": "work_capacity_assessment",
+                "label": "Оценка трудоспособности",
+                "field_type": "text",
+                "required": false,
+                "server_validators": [
+                    "max_length:500"
+                ],
+                "validation_strategy": "both",
+                "order": 0
+            }
+        ]
+    },
+    {
+        "name": "Справка о судимости",
+        "slug": "spravka-o-sudimosti",
+        "description": "",
+        "fields": [
+            {
+                "key": "full_name",
+                "label": "ФИО",
+                "field_type": "text",
+                "required": true,
+                "server_validators": [
+                    "not_empty",
+                    "max_length:255"
+                ],
+                "validation_strategy": "server",
+                "order": 0
+            },
+            {
+                "key": "blood_type",
+                "label": "Группа крови",
+                "field_type": "text",
+                "required": false,
+                "server_validators": [
+                    "regex:^(A|B|AB|O)[+-]$"
+                ],
+                "validation_strategy": "server",
+                "order": 1
+            },
+            {
+                "key": "chronic_diseases",
+                "label": "Хронические заболевания",
+                "field_type": "long_text",
+                "required": false,
+                "server_validators": [
+                    "max_length:1000"
+                ],
+                "validation_strategy": "both",
+                "order": 2
+            }
+        ]
+    }
+]
