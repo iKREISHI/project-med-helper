@@ -2,7 +2,7 @@ sync:
 	uv sync
 
 migrate:
-	uv run src/manage.py makemigrations users docs_ingest llm semd_templates
+	uv run src/manage.py makemigrations users docs_ingest llm semd_templates chat
 	uv run src/manage.py migrate
 
 collect-static:
