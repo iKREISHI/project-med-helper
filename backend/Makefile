@@ -49,7 +49,7 @@ start-app:  sync copy-sample-env \
 			import-document-templates
 
 schema-api:
-	uv run src/manage.py spectacular --color --file schema.yml
+	uv run src/manage.py spectacular --color --file ../schema.yml
 
 test:
 	uv run src/manage.py test apps api --parallel
