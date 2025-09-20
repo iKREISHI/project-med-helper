@@ -4,7 +4,6 @@ import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import { Header } from "@/1_widgets/header";
 import "./globals.css";
-import { Sidebar } from "@/4_shared";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Theme accentColor="indigo">
+        <Theme accentColor="blue" radius="large">
           <Header />
           {children}
         </Theme>

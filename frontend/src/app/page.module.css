@@ -1,0 +1,22 @@
+.Container {
+  display: grid;
+  grid-template-columns: 4fr 2fr;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-4);
+  min-height: calc(100vh - 60px);
+}
+
+.Container > *:nth-child(2) {
+  grid-row: span 2;
+}
+
+@media (max-width: 768px) {
+  .Container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .Container > *:nth-child(2) {
+    grid-row: auto;
+  }
+}

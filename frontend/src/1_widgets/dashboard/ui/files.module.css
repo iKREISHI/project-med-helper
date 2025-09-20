@@ -1,0 +1,82 @@
+.Description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+}
+
+.backgroundContainer {
+  background: linear-gradient(135deg, var(--accent-4) 0%, var(--accent-4) 100%);
+  width: 100%;
+  box-shadow: 0 4px 10px -4px var(--accent-6);
+}
+
+.TruncateOneLine {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.DropdownContent {
+  border-radius: 12px;
+  box-shadow: var(--shadow-3);
+}
+
+.DropdownItem:hover {
+  background-color: var(--accent-surface);
+  outline: none;
+  color: var(--accent-indicator);
+}
+
+.DropdownTrigger {
+  color: var(--gray-8);
+}
+
+.DropdownTrigger:hover {
+  color: var(--gray-10);
+}
+
+.IconsFiles {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: rgba(117, 117, 117, 0.06);
+  padding: 0.5em;
+  border-radius: var(--radius-3);
+}
+
+.IconsFiles img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.IconDetails {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 0.5em;
+  border-radius: var(--radius-3);
+}
+
+.IconDetails img {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+}
+
+.DashboardContainerItem {
+  border-radius: var(--radius-3);
+}
+
+.DashboardContainerItem:hover {
+  background-color: var(--accent-2);
+}

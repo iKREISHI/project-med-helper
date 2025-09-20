@@ -1,11 +1,11 @@
 :root {
-  --background: #ffffff;
+  --background: var(--background);
   --foreground: black;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff;
+    --background: #e4e4e7;
     --foreground: #000000;
   }
 }
@@ -41,3 +41,15 @@ a {
     color-scheme: light;
   }
 }
+
+.radix-themes {
+  background-color: var(--gray-2);
+}
+
+/* .radix-themes {
+  background-color: var(--gray-1);
+  background-image: url('/fil.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+} */
