@@ -9,6 +9,7 @@
 }
 
 .RootSender{
+    color: white;
     padding: 20px;
     background-color: var(--back-color-sender);
     padding: 10px;
