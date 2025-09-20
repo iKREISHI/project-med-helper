@@ -1,0 +1,17 @@
+.SelectContent {
+  box-shadow: 3px 5px 8px -4px var(--gray-5);
+  border: 1px solid var(--gray-4);
+  background-color: white;
+}
+
+.SelectContent [data-highlighted] {
+  background-color: var(--accent-surface);
+  color: var(--accent-indicator);
+  cursor: pointer;
+}
+
+@media (min-width: 1280px) {
+  .SearchInput {
+    flex: 1;
+  }
+}
