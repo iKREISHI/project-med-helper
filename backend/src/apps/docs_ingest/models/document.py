@@ -31,5 +31,4 @@ class Document(models.Model):
         return f"{self.title or self.file.name} ({self.owner})"
 
     class Meta:
-        verbose_name = 'Медицинский документ'
-        verbose_name_plural = 'Медицинские документы'
+        verbose_name = 'Клинические рекомендации'

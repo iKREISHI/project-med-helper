@@ -27,6 +27,8 @@ class Chunk(models.Model):
 
     class Meta:
         unique_together = ("document", "idx")
+        verbose_name = 'Чанк клинических рекомендаций'
+        verbose_name_plural = 'Чанки клинических рекомендаций'
 
     def __str__(self):
         return f"Chunk {self.idx} of {self.document} ({self.owner})"

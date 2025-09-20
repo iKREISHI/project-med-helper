@@ -77,8 +77,8 @@ class DialogMessageView(generics.GenericAPIView, generics.ListAPIView):
         data: Dict[str, Any] = ser.validated_data
 
         llm_kwargs = dict(
-            search_mode="vector",
-            k=5,
+            search_mode="hybrid",
+            k=10,
             doc_id=None,
             section=None,
             provider_params=data.get("params") or {},
