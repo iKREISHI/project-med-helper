@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "generate:types": "openapi-typescript  http://127.0.0.1:8000/api/schema/ -o src/4_shared/api/types.ts",
+    "devtypes":"npm run generate:types"
   },
   "dependencies": {
     "@onlyoffice/document-editor-react": "^2.1.1",

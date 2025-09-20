@@ -1,4 +1,4 @@
-// src/lib/config.ts
+// @shared/config/backend.ts
 export const backendBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const apiConfig = {
