@@ -2,7 +2,7 @@ sync:
 	uv sync
 
 migrate:
-	uv run src/manage.py makemigrations users docs_ingest llm semd_templates
+	uv run src/manage.py makemigrations users docs_ingest llm semd_templates chat
 	uv run src/manage.py migrate
 
 collect-static:
@@ -10,6 +10,7 @@ collect-static:
 
 copy-sample-env:
 	cp .env.sample .env
+	cp ../.env.sample ../.env
 
 start-docker-postgres:
 	docker compose --file ../docker-compose-local-dev.yml up postgres -d
@@ -49,7 +50,7 @@ start-app:  sync copy-sample-env \
 			import-document-templates
 
 schema-api:
-	uv run src/manage.py spectacular --color --file schema.yml
+	uv run src/manage.py spectacular --color --file ../schema.yml
 
 test:
 	uv run src/manage.py test apps api --parallel

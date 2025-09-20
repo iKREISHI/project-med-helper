@@ -49,8 +49,7 @@
   margin-top: 8px;
   background: var(--gray-1);
   border-radius: 12px;
-  box-shadow: 3px 5px 8px -4px var(--gray-5);
-  border: 1px solid var(--gray-4);
+  box-shadow: var(--shadow-3);;
   padding: 0.5em;
   min-width: 180px;
   overflow-y: auto;
