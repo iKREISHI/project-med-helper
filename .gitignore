@@ -2,7 +2,9 @@
 .env
 
 django.log
+celerybeat-schedule.db
 
 # JetBrains Junie
 .junie
+
 

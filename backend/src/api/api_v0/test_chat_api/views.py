@@ -48,7 +48,7 @@ from apps.llm.mode.clinical_reference_llm import ClinicalLLM
 )
 class ChatViewSet(viewsets.ViewSet):
     """
-    /api/chat/  (POST → create)
+    /api/test-chat/  (POST → create)
 
     Настраиваемые query-параметры:
         mode     – 'vector' | 'hybrid'  (по умолчанию 'vector')
@@ -106,7 +106,7 @@ class ChatViewSet(viewsets.ViewSet):
         section   = (request.query_params.get("section") or "").strip() or None
 
         llm = ClinicalLLM(
-            search_mode=mode,
+            search_mode="hybrid",
             k=k,
             doc_id=doc_id,
             section=section,

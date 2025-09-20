@@ -7,8 +7,9 @@ clinical_llm.py
 
 * ищет релевантные фрагменты;
 * очищает их перед передачей в модель;
-* формирует промпт согласно клиническим правилам;
-* **логирует** все этапы через *Django‑совместимый* логгер;
+* формирует промпт согласно клиническим правилам (системный промпт можно
+  переопределить через конструктор);
+* **логирует** все этапы через *Django-совместимый* логгер;
 * подсчитывает токены промпта/ответа;
 * возвращает готовый ответ или поток токенов.
 
@@ -20,7 +21,6 @@ clinical_llm.py
 Если в `LOGGING` не прописано отдельного логгера `"django.clinical_llm"`,
 сообщения всплывут к корневому `"django"`.
 
-
 Учёт токенов
 ------------
 Если установлен *tiktoken* и передано имя модели через
@@ -29,11 +29,14 @@ clinical_llm.py
 Пример использования
 ~~~~~~~~~~~~~~~~~~~~
 ```python
-from clinical_llm import ClinicalLLM
+from clinical_llm import ClinicalLLM, DEFAULT_SYSTEM_PROMPT
+
+custom_prompt = DEFAULT_SYSTEM_PROMPT + "\n6. Не упоминай, какой ты модель."
 
 llm = ClinicalLLM(
     search_mode="hybrid",
     k=3,
+    system_prompt=custom_prompt,
     provider_params={"model": "gpt-4o"},
 )
 print(llm.ask("Какова доза статинов при высоком риске ИБС?"))
@@ -49,9 +52,21 @@ from typing import Any, Dict, List, Callable
 from apps.docs_ingest.vectors import vector_search, hybrid_search
 from apps.llm.llm_providers import get_provider
 
-__all__ = ["ClinicalLLM"]
+__all__ = ["ClinicalLLM", "DEFAULT_SYSTEM_PROMPT"]
+
 
 logger = logging.getLogger("django.clinical_llm")
+
+DEFAULT_SYSTEM_PROMPT = (
+    "Ты — справочная LLM-система для врачей-клиницистов.\n"
+    "Правила работы:\n\n"
+    "1. Отвечай **только** на основании текста из секции CONTEXT.\n"
+    "2. Если факта нет в CONTEXT — честно ответь:\n"
+    "   «✘ По предоставленным клиническим рекомендациям данных нет».\n"
+    "3. Сохраняй нумерованные ссылки: после каждого утверждения ставь квадратные скобки с индексом фрагмента, например [1] или [2].\n"
+    "4. Стиль ответа: кратко, по существу, 1-2 абзаца, затем «Рекомендации» списком.\n"
+    "5. Язык ответа — русский."
+)
 
 _BULLET_RE = re.compile(r"^[\u2022•\-–]\s*", flags=re.MULTILINE)
 _WS_RE: re.Pattern[str] = re.compile(r"\s+")
@@ -59,20 +74,16 @@ _WS_RE: re.Pattern[str] = re.compile(r"\s+")
 try:
     import tiktoken  # type: ignore
 except ImportError:  # pragma: no cover
-    tiktoken = None  # noqa: PLW0127 – fallback at runtime
+    tiktoken = None
 
 
 def _clean_paragraph(text: str) -> str:
-    """Удаляет маркёры списков и перевод строки внутри абзаца."""
     text = _BULLET_RE.sub("", text)
-
     paragraphs: list[str] = []
     for block in text.split("\n\n"):
-        block = block.replace("\n", " ")
-        block = _WS_RE.sub(" ", block).strip()
+        block = _WS_RE.sub(" ", block.replace("\n", " ")).strip()
         if block:
             paragraphs.append(block)
-
     return "\n\n".join(paragraphs)
 
 
@@ -83,7 +94,6 @@ def _approx_token_count(text: str) -> int:
 def _count_chatml_tokens(messages: List[Dict[str, str]], model: str | None) -> int:
     if tiktoken is None or model is None:
         return _approx_token_count(" ".join(m["content"] for m in messages))
-
     try:
         encoding = tiktoken.encoding_for_model(model)
     except Exception:
@@ -91,12 +101,14 @@ def _count_chatml_tokens(messages: List[Dict[str, str]], model: str | None) -> i
 
     tokens = 2  # <im_start>assistant
     for m in messages:
-        tokens += 4  # ChatML overhead per message
+        tokens += 4  # overhead per message
         tokens += len(encoding.encode(m.get("content", "")))
     return tokens
 
 
 class ClinicalLLM:
+    """Высокоуровневый интерфейс LLM с настраиваемым системным промптом."""
+
     _SEARCH_FUNCS: dict[str, Callable[..., List[Dict[str, Any]]]] = {
         "vector": vector_search,
         "hybrid": hybrid_search,
@@ -105,12 +117,13 @@ class ClinicalLLM:
     def __init__(
         self,
         *,
-        search_mode: str = "vector",
+        search_mode: str = "hybrid",
         k: int = 5,
         owner_id: int | None = None,
         doc_id: int | None = None,
         section: str | None = None,
         provider_params: Dict[str, Any] | None = None,
+        system_prompt: str = DEFAULT_SYSTEM_PROMPT,
     ) -> None:
         search_mode = search_mode.lower()
         if search_mode not in self._SEARCH_FUNCS:
@@ -124,8 +137,14 @@ class ClinicalLLM:
         self.doc_id = doc_id
         self.section = section
         self.provider_params = provider_params or {}
+        self.system_prompt = system_prompt
 
-        logger.debug("ClinicalLLM initialised | mode=%s, k=%s", self.search_mode, self.k)
+        logger.debug(
+            "ClinicalLLM initialised | mode=%s | k=%s | prompt_len=%d",
+            self.search_mode,
+            self.k,
+            len(self.system_prompt),
+        )
 
     def _retrieve_context(
         self,
@@ -142,8 +161,7 @@ class ClinicalLLM:
         owner_id = owner_id if owner_id is not None else self.owner_id
         doc_id = doc_id if doc_id is not None else self.doc_id
         section = section if section is not None else self.section
-
-        extra_filters: Dict[str, Any] | None = {"section": section} if section else None
+        extra_filters = {"section": section} if section else None
 
         logger.debug(
             "Searching | mode=%s | q='%s' | k=%s | owner=%s | doc=%s | filters=%s",
@@ -164,34 +182,17 @@ class ClinicalLLM:
         )
 
         logger.info("Search returned %d fragments", len(results))
-
         cleaned = [_clean_paragraph(r["text"]) for r in results]
         logger.debug("Cleaned context: %s", cleaned)
-
         return cleaned
 
-    @staticmethod
-    def _build_prompt(context: List[str], question: str) -> List[Dict[str, str]]:
+    def _build_prompt(self, context: List[str], question: str) -> List[Dict[str, str]]:
         numbered_context = "\n".join(
             f"[{i + 1}] {frag}" for i, frag in enumerate(context)
         )
-
-        system_prompt = (
-            "Ты — справочная LLM-система для врачей-клиницистов.\n"
-            "Правила работы:\n\n"
-            "1. Отвечай **только** на основании текста из секции CONTEXT.\n"
-            "2. Если факта нет в CONTEXT — честно ответь:\n"
-            "   «✘ По предоставленным клиническим рекомендациям данных нет».\n"
-            "3. Сохраняй нумерованные ссылки: после каждого утверждения ставь квадратные скобки с индексом "
-            "фрагмента, например [1] или [2].\n"
-            "4. Стиль ответа: кратко, по существу, 1-2 абзаца, затем «Рекомендации» списком.\n"
-            "5. Язык ответа — русский."
-        )
-
         context_block = f"<CONTEXT>\n{numbered_context}\n</CONTEXT>"
-
         return [
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": self.system_prompt},
             {"role": "assistant", "content": "Понял правила."},
             {"role": "user", "content": f"{context_block}\n\n<user>{question}</user>"},
         ]
@@ -208,17 +209,15 @@ class ClinicalLLM:
         provider_params: Dict[str, Any] | None = None,
         search_mode: str | None = None,
     ):
-        if search_mode is not None:
-            orig_mode = self.search_mode
-            try:
-                self.search_mode = search_mode.lower()
-                if self.search_mode not in self._SEARCH_FUNCS:
-                    raise ValueError
-            except ValueError:
-                self.search_mode = orig_mode
+        # Допустим временное переопределение режима поиска
+        if search_mode is not None and search_mode.lower() != self.search_mode:
+            if search_mode.lower() not in self._SEARCH_FUNCS:
                 raise ValueError(
                     f"search_mode должен быть 'vector' или 'hybrid', получено: {search_mode}"
                 )
+            orig_mode, self.search_mode = self.search_mode, search_mode.lower()
+        else:
+            orig_mode = None
 
         context = self._retrieve_context(
             question,
@@ -238,6 +237,8 @@ class ClinicalLLM:
         provider = get_provider()
         if stream:
             logger.debug("Streaming response …")
+            if orig_mode:
+                self.search_mode = orig_mode
             return provider.chat(messages, stream=True, **merged_params)
 
         answer = provider.chat(messages, **merged_params)
@@ -252,4 +253,6 @@ class ClinicalLLM:
             resp_tokens + prompt_tokens if resp_tokens is not None else "?",
         )
 
+        if orig_mode:
+            self.search_mode = orig_mode
         return answer
