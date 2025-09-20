@@ -36,7 +36,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  padding-bottom: 80px; /* высота инпута + паддинги */
+  padding-bottom: 30px; /* высота инпута + паддинги */
   box-sizing: border-box;
 }
 

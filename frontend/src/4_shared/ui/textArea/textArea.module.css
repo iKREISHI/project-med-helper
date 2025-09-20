@@ -9,11 +9,11 @@
   font-size: 16px;
   line-height: 1.5;
   box-sizing: border-box;
-  
+
   /* Блюр эффект */
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   transition: all 0.3s ease;
 }
 

@@ -26,12 +26,12 @@ interface FileItemsListProps {
 
 export const FileItemsList = ({ files }: FileItemsListProps) => {
   return (
-    <DashboardContainer>
-      <Flex align="center" justify="between" pb="5">
+    <DashboardContainer style={{ backgroundColor: "var(--gray-4)", padding: '0' }}>
+      <Flex align="center" justify="between" px='3' py='2'>
         <Box pl="2">
           <Flex gap="3" align="center" wrap={{ initial: "wrap", sm: "nowrap" }}>
             <Text
-              size="3"
+              size="2"
               style={{
                 wordBreak: "break-word",
                 minWidth: 0,
@@ -71,27 +71,28 @@ export const FileItemsList = ({ files }: FileItemsListProps) => {
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       </Flex>
-
-      <Flex direction="column" gap="1" height="100%">
-        {files ? (
-          files?.map((file, index) => (
-            <div key={index}>
-              <FileItem
-                name={file.name}
-                path={file.path}
-                create_at={file.create_at}
-                type={file.type}
-              />
-            </div>
-          ))
-        ) : (
-          <Flex align="center" justify="center" height="100%">
-            <Text style={{ fontStyle: "italic" }} color="gray">
-              Пусто
-            </Text>
-          </Flex>
-        )}
-      </Flex>
+      <DashboardContainer style={{height: '100%'}}>
+        <Flex direction="column" gap="1" height="100%">
+          {files ? (
+            files?.map((file, index) => (
+              <div key={index}>
+                <FileItem
+                  name={file.name}
+                  path={file.path}
+                  create_at={file.create_at}
+                  type={file.type}
+                />
+              </div>
+            ))
+          ) : (
+            <Flex align="center" justify="center" height="100%">
+              <Text style={{ fontStyle: "italic" }} color="gray">
+                Пусто
+              </Text>
+            </Flex>
+          )}
+        </Flex>
+      </DashboardContainer>
     </DashboardContainer>
   );
 };

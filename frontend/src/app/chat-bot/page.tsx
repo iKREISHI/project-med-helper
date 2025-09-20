@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { ChatCloud } from "@/4_shared/chat-cloud";
 import { Box, Flex, ScrollArea } from "@radix-ui/themes";
@@ -10,10 +10,9 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
 
-
 interface KeyValue<V = any> {
-    isSending: boolean;
-    message: string
+  isSending: boolean;
+  message: string;
 }
 
 const markdown = `
@@ -31,79 +30,78 @@ function autism() {
 \`\`\`
 `;
 
-
 let messagesInit: KeyValue[] = [
-    { isSending: true, message: "Привет, а аутизм лечится?" },
-    { isSending: false, message: markdown },
-    { isSending: true, message: "А, ясно" },
-    { isSending: true, message: "Привет, а аутизм лечится?" },
-    { isSending: false, message: "Привет, нет, а что?" },
-    { isSending: true, message: "А, ясно" },
-    { isSending: true, message: "Привет, а аутизм лечится?" },
-    { isSending: false, message: "Привет, нет, а что?" },
-    { isSending: true, message: "А, ясно" },
-    { isSending: true, message: "Привет, а аутизм лечится?" },
-    { isSending: false, message: "Привет, нет, а что?" },
-    { isSending: true, message: "А, ясно" },
-    { isSending: true, message: "Привет, а аутизм лечится?" },
-    { isSending: false, message: "Привет, нет, а что?" },
-    { isSending: true, message: "А, ясно" },
-    { isSending: true, message: "Привет, а аутизм лечится?" },
-    { isSending: false, message: "Привет, нет, а что?" },
-    { isSending: true, message: "А, ясно" },
-    { isSending: true, message: "Привет, а аутизм лечится?" },
-    { isSending: false, message: "Привет, нет, а что?" },
-    { isSending: true, message: "А, ясно" },
+  { isSending: true, message: "Привет, а аутизм лечится?" },
+  { isSending: false, message: markdown },
+  { isSending: true, message: "А, ясно" },
+  { isSending: true, message: "Привет, а аутизм лечится?" },
+  { isSending: false, message: "Привет, нет, а что?" },
+  { isSending: true, message: "А, ясно" },
+  { isSending: true, message: "Привет, а аутизм лечится?" },
+  { isSending: false, message: "Привет, нет, а что?" },
+  { isSending: true, message: "А, ясно" },
+  { isSending: true, message: "Привет, а аутизм лечится?" },
+  { isSending: false, message: "Привет, нет, а что?" },
+  { isSending: true, message: "А, ясно" },
+  { isSending: true, message: "Привет, а аутизм лечится?" },
+  { isSending: false, message: "Привет, нет, а что?" },
+  { isSending: true, message: "А, ясно" },
+  { isSending: true, message: "Привет, а аутизм лечится?" },
+  { isSending: false, message: "Привет, нет, а что?" },
+  { isSending: true, message: "А, ясно" },
+  { isSending: true, message: "Привет, а аутизм лечится?" },
+  { isSending: false, message: "Привет, нет, а что?" },
+  { isSending: true, message: "А, ясно" },
 ];
 
 export default function ChatBot() {
-
-    const [messages, setMessages] = useState<KeyValue[]>(messagesInit)
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const handleMessage = (messageU: string) => {
-        const userMessage:KeyValue = {
-            isSending: true,
-            message: messageU
-        } 
-        setMessages(prev => [...prev, userMessage])
-    }
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const [messages, setMessages] = useState<KeyValue[]>(messagesInit);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const handleMessage = (messageU: string) => {
+    const userMessage: KeyValue = {
+      isSending: true,
+      message: messageU,
     };
+    setMessages((prev) => [...prev, userMessage]);
+  };
 
-    useEffect(() => {
-        scrollToBottom();
-    },[messages]);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-    return (
-        <Flex direction='column'>
-        <div>
-            <div className={styles.ChatContainer}>
-                <div className={styles.MessagesList}>
-                    {messages.map((msg, index) => (
-                        <div
-                            key={index}
-                            className={msg.isSending ? styles.UserMessage : styles.BotMessage}
-                        >
-                            <ChatCloud isSending={msg.isSending}>
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-                                <Markdown
-                                    remarkPlugins={[remarkGfm]}
-                                    rehypePlugins={[rehypeHighlight]}
-                                >{msg.message}</Markdown>
-                            </ChatCloud>
-                        </div>
-                    ))}
-                    <div ref={messagesEndRef}></div>
-                </div>
-            </div>
-        </div>
-        <div className={styles.InputWrapper}>
-            <ResizableTextarea
-            onSend={handleMessage}
-            />
-        </div>            
-        </Flex>
-    );
+  return (
+    <Flex direction="column">
+      <div>
+        <Box className={styles.ChatContainer} p={{ initial: "2", lg: "3" }}>
+          <div className={styles.MessagesList}>
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={
+                  msg.isSending ? styles.UserMessage : styles.BotMessage
+                }
+              >
+                <ChatCloud isSending={msg.isSending}>
+                  <Markdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                  >
+                    {msg.message}
+                  </Markdown>
+                </ChatCloud>
+              </div>
+            ))}
+            <div ref={messagesEndRef}></div>
+          </div>
+        </Box>
+      </div>
+      <div className={styles.InputWrapper}>
+        <ResizableTextarea onSend={handleMessage} />
+      </div>
+    </Flex>
+  );
 }

@@ -1,18 +1,23 @@
-:root{
-    --back-color: rgb(217, 243, 255);
-    --back-color-sender: rgb(103, 207, 255);
-}
-.Root{
-    background-color: var(--back-color);
-    padding: 20px;
-    border-radius: 15px 15px 0px 15px;
+:root {
+  --back-color: rgb(217, 243, 255);
+  --back-color-sender: rgb(103, 207, 255);
 }
 
-.RootSender{
-    color: white;
-    padding: 20px;
-    background-color: var(--back-color-sender);
-    padding: 10px;
-    border-radius: 15px 15px 15px 0px;
+.Sender {
+  padding: 10px 13px;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
+.Root {
+  background-color: var(--back-color);
+  border-radius: 15px 15px 0px 15px;
+}
+
+.RootSender {
+  color: white;
+  background-color: var(--back-color-sender);
+  border-radius: 15px 15px 15px 0px;
+}
