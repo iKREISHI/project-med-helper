@@ -3,6 +3,7 @@
 
 import createClient from "openapi-fetch/dist/index.cjs";
 import { apiConfig, backendBaseUrl } from "../config/backend";
+import { paths } from './types';
 
 export const { GET, POST, PUT, DELETE } = createClient<paths> ({
     baseUrl: apiConfig.baseUrl,
