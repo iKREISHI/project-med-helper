@@ -1,17 +1,19 @@
 import React from "react";
-import styles from './chatCloud.module.css'
-import Markdown from "react-markdown";
+import styles from "./chatCloud.module.css";
 
 interface ChatCloudProps {
-    isSending: boolean;
-    children: React.ReactNode
+  isSending: boolean;
+  children: React.ReactNode;
 }
 
-
 export function ChatCloud({ isSending = false, children }: ChatCloudProps) {
-    return (
-        <div className={ isSending? styles.Root : styles.RootSender}>
-            {children}
-        </div>
-    )
+  return (
+    <div
+      className={`${styles.Sender} ${
+        isSending ? styles.Root : styles.RootSender
+      }`}
+    >
+      {children}
+    </div>
+  );
 }
