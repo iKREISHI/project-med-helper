@@ -30,6 +30,14 @@ start-docker-develop-environment: \
 		start-docker-minio \
 		start-docker-qdrant
 
+runserver:
+	uv run src/manage.py runserver
+
+celery-worker:
+	cd ./src; uv run celery -A config.celery worker --loglevel=info
+
+celery-beat:
+	cd ./src; uv run celery -A config.celery beat --loglevel=info
 
 import-field-definitions:
 	uv run src/manage.py import_field_definitions_from_json
