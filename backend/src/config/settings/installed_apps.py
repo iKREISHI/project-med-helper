@@ -10,6 +10,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'drf_spectacular_sidecar',
+    'corsheaders',
     'minio_storage',
     'django_celery_beat',
     'django_celery_results',
