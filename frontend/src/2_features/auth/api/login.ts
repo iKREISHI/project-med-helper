@@ -3,18 +3,27 @@ import { POST } from "@/4_shared/api/client";
 
 export const login = async (params: LoginModel): Promise<AuthResponse> => {
   try {
-    const response = await POST("/api/v0/auth/login/", {
+    const result = await POST("/api/v0/auth/login/", {
       body: params,
     });
 
-    if (!response || !response.data) {
-      throw new Error("Error: the server returned an empty response.");
+    const errorData = result.error;
+    const response = result.data;
+    const status = result.response?.status;
+
+    if (status >= 400) {
+      const errorMessage =
+        (errorData &&
+        typeof errorData === "object" &&
+        "non_field_errors" in errorData
+          ? (errorData as any).non_field_errors?.[0]
+          : null) || `Authentication failed with status: ${status}`;
+      throw new Error(errorMessage);
     }
 
-    console.log("Response from the server:", response.data);
-    return response.data as AuthResponse;
+    return response as AuthResponse;
   } catch (error: any) {
     console.error("Authorization error:", error);
-    throw new Error(error.message);
+    throw error instanceof Error ? error : new Error("Authorization failed");
   }
 };

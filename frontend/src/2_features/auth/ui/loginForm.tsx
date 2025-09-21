@@ -21,15 +21,18 @@ import {
 import { login } from "../api/login";
 import { useRouter } from "next/navigation";
 import { useAsync } from "@/4_shared";
+import { useUser } from "@/4_shared/hooks/useUser";
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { refetchUser } = useUser();
 
   const handleLogin = async () => {
     await login({ username, password });
+    await refetchUser();
     router.push("/");
   };
 
