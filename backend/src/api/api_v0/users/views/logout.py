@@ -39,7 +39,7 @@ class LogoutViewSet(viewsets.ViewSet):
         responses={
             204: OpenApiResponse(description="Сессия уничтожена (или отсутствовала)"),
         },
-        tags=["Аутентификация", "Пользователи"],
+        tags=["Аутентификация",],
         operation_id="auth_logout_create",
     )
     def create(self, request: Request) -> Response:

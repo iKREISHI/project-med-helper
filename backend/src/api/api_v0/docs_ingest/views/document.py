@@ -16,9 +16,11 @@ from apps.docs_ingest.vectors import delete_doc
 
 logger = logging.getLogger(__name__)
 
+_tag_name = "Клинические рекомендации"
+
 @extend_schema_view(
     list=extend_schema(
-        tags=["Documents"],
+        tags=[_tag_name],
         summary="Список документов",
         description="Возвращает список загруженных документов, отсортированных по дате создания (DESC).",
         responses=DocumentOutSerializer,
@@ -28,12 +30,12 @@ logger = logging.getLogger(__name__)
         ],
     ),
     retrieve=extend_schema(
-        tags=["Documents"],
+        tags=[_tag_name],
         summary="Получить документ",
         responses=DocumentOutSerializer,
     ),
     create=extend_schema(
-        tags=["Documents"],
+        tags=[_tag_name],
         summary="Загрузить документ",
         description="Загружает файл (PDF/DOCX/...), создаёт запись и ставит в очередь пайплайн парсинга/индексации.",
         request=DocumentUploadSerializer,

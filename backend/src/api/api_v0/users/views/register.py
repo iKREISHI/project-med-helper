@@ -42,7 +42,7 @@ class RegisterViewSet(viewsets.ViewSet):
             201: MinimalUserSerializer,
             400: OpenApiResponse(description="Ошибки валидации входных данных"),
         },
-        tags=["Аутентификация", "Пользователи"],
+        tags=["Аутентификация",],
         operation_id="auth_register_create",
     )
     def create(self, request: Request) -> Response:

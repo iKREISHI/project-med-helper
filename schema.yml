@@ -1,0 +1,1167 @@
+openapi: 3.0.3
+info:
+  title: Project Med API
+  version: 1.0.0
+  description: Automated workstation for the doctor on duty
+paths:
+  /api/v0/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Принимает имя пользователя и пароль. При успешной аутентификации
+        создаёт серверную сессию и возвращает минимальные данные пользователя.
+      summary: Вход в систему (создание сессии)
+      tags:
+      - Аутентификация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinimalUser'
+          description: ''
+        '400':
+          description: Ошибки валидации входных данных
+  /api/v0/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: 'Завершает серверную сессию текущего пользователя. Операция идемпотентна:
+        если пользователь не был аутентифицирован, также возвращается 204.'
+      summary: Выход из системы (уничтожение сессии)
+      tags:
+      - Аутентификация
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: Сессия уничтожена (или отсутствовала)
+  /api/v0/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: |-
+        Создаёт нового пользователя по переданным данным. Пароль сохраняется в хешированном виде.
+
+        Аутентификация после регистрации не выполняется автоматически — используйте эндпоинт логина.
+      summary: Регистрация пользователя
+      tags:
+      - Аутентификация
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinimalUser'
+          description: ''
+        '400':
+          description: Ошибки валидации входных данных
+  /api/v0/chat/dialogs:
+    get:
+      operationId: v0_chat_dialogs_list
+      description: |-
+        * **GET  /api/v0/chat/dialogs**               — список диалогов
+        * **POST /api/v0/chat/dialogs**               — создать диалог
+        * **GET  /api/v0/chat/dialogs/{id}/message**  — история сообщений
+        * **POST /api/v0/chat/dialogs/{id}/message**  — отправить сообщение
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - Чат-бот
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDialogList'
+          description: ''
+    post:
+      operationId: v0_chat_dialogs_create
+      description: |-
+        * **GET  /api/v0/chat/dialogs**               — список диалогов
+        * **POST /api/v0/chat/dialogs**               — создать диалог
+        * **GET  /api/v0/chat/dialogs/{id}/message**  — история сообщений
+        * **POST /api/v0/chat/dialogs/{id}/message**  — отправить сообщение
+      tags:
+      - Чат-бот
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DialogCreate'
+            examples:
+              CreateDialog:
+                value:
+                  title: Гипертония
+                summary: Create dialog
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dialog'
+              examples:
+                CreateDialog:
+                  value:
+                    title: Гипертония
+                  summary: Create dialog
+          description: ''
+  /api/v0/chat/dialogs/{id}/message:
+    get:
+      operationId: v0_chat_dialogs_message_retrieve
+      description: GET → история; POST → отправка сообщения.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Диалог (чат-сеанс).
+        required: true
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      tags:
+      - Чат-бот
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+            text/event-stream:
+              schema:
+                type: string
+          description: ''
+    post:
+      operationId: v0_chat_dialogs_message_create
+      description: GET → история; POST → отправка сообщения.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Диалог (чат-сеанс).
+        required: true
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      tags:
+      - Чат-бот
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DialogSendMessage'
+            examples:
+              SendMessage:
+                value:
+                  content: Какова доза статинов?
+                  stream: false
+                summary: Send message
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+            text/event-stream:
+              schema:
+                type: string
+          description: ''
+  /api/v0/clinical-recomendation/document/:
+    get:
+      operationId: v0_clinical_recomendation_document_list
+      description: Возвращает список загруженных документов, отсортированных по дате
+        создания (DESC).
+      summary: Список документов
+      parameters:
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: (опц.) Поиск по title/source (если добавите фильтрацию)
+      tags:
+      - Клинические рекомендации
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentOut'
+          description: ''
+    post:
+      operationId: v0_clinical_recomendation_document_create
+      description: Загружает файл (PDF/DOCX/...), создаёт запись и ставит в очередь
+        пайплайн парсинга/индексации.
+      summary: Загрузить документ
+      tags:
+      - Клинические рекомендации
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpload'
+            examples:
+              ЗагрузкаPDF:
+                value:
+                  title: КР ХОБЛ
+                  source: upload
+                  language: ru
+                summary: Загрузка PDF
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentOut'
+              examples:
+                ЗагрузкаPDF:
+                  value:
+                    title: КР ХОБЛ
+                    source: upload
+                    language: ru
+                  summary: Загрузка PDF
+          description: ''
+  /api/v0/clinical-recomendation/document/{id}/:
+    get:
+      operationId: v0_clinical_recomendation_document_retrieve
+      summary: Получить документ
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Клинические рекомендации.
+        required: true
+      tags:
+      - Клинические рекомендации
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentOut'
+          description: ''
+  /api/v0/clinical-recomendation/document/{id}/purge/:
+    delete:
+      operationId: v0_clinical_recomendation_document_purge_destroy
+      description: Удаляет документ из БД и все связанные точки из Qdrant.
+      summary: Удалить документ и его эмбеддинги
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Клинические рекомендации.
+        required: true
+      tags:
+      - Documents
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v0/clinical-recomendation/document/{id}/reindex/:
+    post:
+      operationId: v0_clinical_recomendation_document_reindex_create
+      description: Повторно запускает пайплайн парсинга/чанкинга/эмбеддингов/апсерта
+        в Qdrant.
+      summary: Переиндексировать документ
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Клинические рекомендации.
+        required: true
+      tags:
+      - Documents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentOut'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v0/clinical-recomendation/search/:
+    get:
+      operationId: v0_clinical_recomendation_search_list
+      description: Ищет релевантные чанки по запросу `q`. `mode=vector` — чисто векторный
+        поиск, `mode=hybrid` — гибридный (вектор + полнотекст, если настроен индекс).
+        По умолчанию результаты ограничены документами текущего пользователя.
+      summary: Поиск по эмбеддингам (vector/hybrid) в Qdrant
+      parameters:
+      - in: query
+        name: doc_id
+        schema:
+          type: integer
+        description: (опц.) Фильтр по конкретному документу
+      - in: query
+        name: k
+        schema:
+          type: integer
+          default: 5
+        description: Количество результатов (top-k)
+      - in: query
+        name: mode
+        schema:
+          type: string
+          default: vector
+        description: 'Режим поиска: vector | hybrid'
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Поисковый запрос
+        required: true
+      - in: query
+        name: section
+        schema:
+          type: string
+        description: (опц.) Фильтр по названию/части названия раздела (payload.section)
+      tags:
+      - Поиск по клиническим рекомендациям
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResponse'
+              examples:
+                ПримерЗапроса:
+                  value:
+                  - q: Противопоказания ингаляционных ГКС
+                    mode: vector
+                    k: 5
+                  summary: Пример запроса
+          description: ''
+  /api/v0/field-definitions/:
+    get:
+      operationId: v0_field_definitions_list
+      description: Возвращает список полей с пагинацией.
+      summary: Список полей
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Номер страницы
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: Количество элементов на странице (по умолчанию 10)
+      tags:
+      - SEMD module
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFieldDefinitionList'
+          description: ''
+  /api/v0/field-definitions/{id}/:
+    get:
+      operationId: v0_field_definitions_retrieve
+      description: Возвращает одно поле по ID.
+      summary: Получить поле
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Определение поля.
+        required: true
+      tags:
+      - SEMD module
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldDefinition'
+          description: ''
+  /api/v0/semd-document-templates/:
+    get:
+      operationId: v0_semd_document_templates_list
+      description: Возвращает список шаблонов документов с их полями.
+      summary: Список шаблонов документов
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Номер страницы
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: Количество элементов на странице
+      tags:
+      - SEMD module
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDocumentTemplateList'
+          description: ''
+  /api/v0/semd-document-templates/{id}/:
+    get:
+      operationId: v0_semd_document_templates_retrieve
+      description: Возвращает один шаблон документа по ID.
+      summary: Получить шаблон документа
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Шаблон документа.
+        required: true
+      tags:
+      - SEMD module
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentTemplate'
+          description: ''
+  /api/v0/test_chat_api/:
+    post:
+      operationId: v0_test_chat_api_create
+      description: |-
+        /api/test-chat/  (POST → create)
+
+        Настраиваемые query-параметры:
+            mode     – 'vector' | 'hybrid'  (по умолчанию 'vector')
+            k        – int, количество фрагментов CONTEXT (по умолчанию 5)
+            doc_id   – int | None, фильтр документа
+            section  – str | None, фильтр секции/главы
+      summary: Unified chat completions (clinical & generic)
+      tags:
+      - chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              SimpleRequest:
+                value:
+                  messages:
+                  - role: user
+                    content: Какова доза статинов при высоком риске ИБС?
+                  stream: false
+                summary: Simple request
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+            text/event-stream:
+              schema:
+                type: string
+          description: Полный ответ LLM при «stream = false»
+  /api/v0/users/me/:
+    get:
+      operationId: users_me_retrieve
+      description: |-
+        Возвращает подробные данные текущего аутентифицированного пользователя.
+
+        Требуется активная сессия (cookie) или другая совместимая схема аутентификации.
+      summary: Текущий пользователь
+      tags:
+      - Пользователи
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v0/users/me/minimal/:
+    get:
+      operationId: users_me_minimal_retrieve
+      description: |-
+        Возвращает минимальный набор данных текущего аутентифицированного пользователя.
+
+        Требуется активная сессия (cookie) или другая совместимая схема аутентификации.
+      summary: Текущий пользователь (минимально)
+      tags:
+      - Пользователи
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MinimalUser'
+          description: ''
+components:
+  schemas:
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - content
+      - id
+      - role
+    ChatRequest:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        stream:
+          type: boolean
+          default: false
+        params:
+          type: object
+          additionalProperties: {}
+          description: Любые параметры, поддерживаемые моделью (temperature, top_p
+            …)
+      required:
+      - messages
+    ChatResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: Полный ответ LLM — возвращается, если stream=false
+      required:
+      - answer
+    Dialog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 120
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+    DialogCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 120
+    DialogSendMessage:
+      type: object
+      properties:
+        content:
+          type: string
+          maxLength: 8000
+        params:
+          type: object
+          additionalProperties: {}
+        stream:
+          type: boolean
+          default: false
+      required:
+      - content
+    DocumentOut:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 512
+        file:
+          type: string
+          format: uri
+        source:
+          type: string
+          maxLength: 128
+        content_type:
+          type: string
+          maxLength: 100
+        language:
+          type: string
+          maxLength: 16
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        error:
+          type: string
+        meta: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        owner:
+          type: integer
+          title: Владелец
+      required:
+      - created_at
+      - file
+      - id
+      - owner
+    DocumentTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Название шаблона
+          description: Название медицинского документа (например 'Эпикриз').
+          maxLength: 255
+        slug:
+          type: string
+          title: Код шаблона
+          description: Уникальный системный идентификатор шаблона (например 'epicrisis').
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+          title: Описание
+          description: Для чего предназначен данный шаблон.
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateField'
+          readOnly: true
+      required:
+      - fields
+      - id
+      - name
+      - slug
+    DocumentUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 512
+        file:
+          type: string
+          format: uri
+        source:
+          type: string
+          maxLength: 128
+        language:
+          type: string
+          maxLength: 16
+      required:
+      - file
+      - id
+    FieldDefinition:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        key:
+          type: string
+          title: Ключ поля
+          description: Уникальный технический идентификатор поля в системе (например
+            'anamnesis').
+          maxLength: 255
+        label:
+          type: string
+          title: Название поля
+          description: Отображаемое название поля для пользователя (например 'Анамнез').
+          maxLength: 255
+        field_type:
+          allOf:
+          - $ref: '#/components/schemas/FieldTypeEnum'
+          title: Тип поля
+          description: |-
+            Определяет, какой вид данных ожидается (текст, число, дата и т.п.).
+
+            * `text` - Текст
+            * `long_text` - Длинный текст
+            * `number` - Число
+            * `integer` - Целое
+            * `decimal` - Десятичное
+            * `date` - Дата
+            * `datetime` - Дата и время
+            * `boolean` - Логический (да/нет)
+        required:
+          type: boolean
+          title: Обязательное
+          description: Если включено — поле должно быть заполнено.
+        server_validators:
+          type: array
+          items:
+            type: string
+            maxLength: 200
+          title: Серверные валидаторы
+          description: Список встроенных правил проверки, например ['not_empty', 'max_length:1000'].
+        validation_strategy:
+          allOf:
+          - $ref: '#/components/schemas/ValidationStrategyEnum'
+          title: Варианты валидации
+          description: |-
+            Каким образом проверяется поле: сервер, ИИ или обе стратегии.
+
+            * `none` - Нет
+            * `server` - Серверная
+            * `llm` - ИИ (LLM)
+            * `both` - Обе
+      required:
+      - id
+      - key
+      - label
+    FieldTypeEnum:
+      enum:
+      - text
+      - long_text
+      - number
+      - integer
+      - decimal
+      - date
+      - datetime
+      - boolean
+      type: string
+      description: |-
+        * `text` - Текст
+        * `long_text` - Длинный текст
+        * `number` - Число
+        * `integer` - Целое
+        * `decimal` - Десятичное
+        * `date` - Дата
+        * `datetime` - Дата и время
+        * `boolean` - Логический (да/нет)
+    Login:
+      type: object
+      description: Простой сериализатор логина по username и password.
+      properties:
+        username:
+          type: string
+          title: Имя пользователя
+        password:
+          type: string
+          writeOnly: true
+          title: Пароль
+      required:
+      - password
+      - username
+    MinimalUser:
+      type: object
+      description: |-
+        Минимальный сериализатор пользователя для отображения основных атрибутов.
+
+        Назначение:
+        - Используется там, где нужен краткий профиль пользователя без служебных полей.
+        - Все поля только для чтения, чтобы не допускать записи через этот сериализатор.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          title: Имя пользователя
+        first_name:
+          type: string
+          readOnly: true
+          title: Имя
+        last_name:
+          type: string
+          readOnly: true
+          title: Фамилия
+        patronymic:
+          type: string
+          readOnly: true
+          title: Отчество
+      required:
+      - first_name
+      - id
+      - last_name
+      - patronymic
+      - username
+    ModeEnum:
+      enum:
+      - vector
+      - hybrid
+      type: string
+      description: |-
+        * `vector` - vector
+        * `hybrid` - hybrid
+    PaginatedDialogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dialog'
+    PaginatedDocumentTemplateList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentTemplate'
+    PaginatedFieldDefinitionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldDefinition'
+    Register:
+      type: object
+      description: |-
+        Сериализатор регистрации пользователя.
+
+        Ожидаемые входные поля:
+        - username: строка, обязательна
+        - password: строка, обязательна (write-only)
+        - first_name, last_name, patronymic: необязательные строки
+        - position: первичный ключ существующей должности (обязателен)
+
+        На выходе не содержит поле `password`.
+      properties:
+        username:
+          type: string
+          title: Имя пользователя
+          maxLength: 128
+        password:
+          type: string
+          writeOnly: true
+          title: Пароль
+          maxLength: 128
+        first_name:
+          type: string
+          title: Имя
+          maxLength: 100
+        last_name:
+          type: string
+          title: Фамилия
+          maxLength: 100
+        patronymic:
+          type: string
+          title: Отчество
+          maxLength: 100
+        position:
+          type: integer
+          title: Должность
+      required:
+      - password
+      - position
+      - username
+    RoleEnum:
+      enum:
+      - user
+      - assistant
+      - system
+      type: string
+      description: |-
+        * `user` - User
+        * `assistant` - Assistant
+        * `system` - System
+    SearchHit:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+        doc_id:
+          type: integer
+        owner_id:
+          type: integer
+        idx:
+          type: integer
+        section:
+          type: string
+        page_from:
+          type: integer
+          nullable: true
+        page_to:
+          type: integer
+          nullable: true
+        text:
+          type: string
+      required:
+      - doc_id
+      - idx
+      - page_from
+      - page_to
+      - score
+      - section
+      - text
+    SearchResponse:
+      type: object
+      properties:
+        q:
+          type: string
+        mode:
+          $ref: '#/components/schemas/ModeEnum'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+      required:
+      - mode
+      - q
+      - results
+    StatusEnum:
+      enum:
+      - UPLOADED
+      - PARSED
+      - INDEXED
+      - FAILED
+      type: string
+      description: |-
+        * `UPLOADED` - Uploaded
+        * `PARSED` - Parsed
+        * `INDEXED` - Indexed
+        * `FAILED` - Failed
+    TemplateField:
+      type: object
+      properties:
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Порядок отображения
+          description: Определяет порядок отображения поля в шаблоне.
+        field:
+          $ref: '#/components/schemas/FieldDefinition'
+      required:
+      - field
+    User:
+      type: object
+      description: |-
+        Сериализатор для представления основных полей пользователя.
+
+        Примечания:
+        - Поле `position` отдаётся как первичный ключ связанной модели (по умолчанию
+          поведения DRF для ForeignKey). При необходимости можно заменить на
+          вложенный сериализатор или строковое представление.
+        - Дополнительно отдаем «похожим образом» отдельные поля `position_id` и
+          `position_name`, получая их из связанной модели `Position`.
+        - Поле `avatar` будет сериализовано как относительный путь/URL к файлу.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          title: Имя пользователя
+        first_name:
+          type: string
+          readOnly: true
+          title: Имя
+        last_name:
+          type: string
+          readOnly: true
+          title: Фамилия
+        patronymic:
+          type: string
+          readOnly: true
+          title: Отчество
+        position:
+          type: integer
+          readOnly: true
+          title: Должность
+        position_id:
+          type: integer
+          readOnly: true
+        position_name:
+          type: string
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания аккаунта
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Активный
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff
+        avatar:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          title: Аватар
+      required:
+      - avatar
+      - date_joined
+      - first_name
+      - id
+      - is_active
+      - is_staff
+      - last_name
+      - patronymic
+      - position
+      - position_id
+      - position_name
+      - username
+    ValidationStrategyEnum:
+      enum:
+      - none
+      - server
+      - llm
+      - both
+      type: string
+      description: |-
+        * `none` - Нет
+        * `server` - Серверная
+        * `llm` - ИИ (LLM)
+        * `both` - Обе
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

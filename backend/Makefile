@@ -51,11 +51,16 @@ import-document-templates:
 export-document-templates:
 	uv run src/manage.py export_document_templates
 
+entrypoint:
+	uv run src/manage.py create_superuser --username admin --dev-pass
+	uv run src/manage.py create_positions --medical-set
+
 start-app:  sync copy-sample-env \
 			start-docker-develop-environment \
 			migrate collect-static \
 			import-field-definitions \
-			import-document-templates
+			import-document-templates \
+			entrypoint
 
 schema-api:
 	uv run src/manage.py spectacular --color --file ../schema.yml

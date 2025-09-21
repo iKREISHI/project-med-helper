@@ -7,6 +7,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes,
 from apps.docs_ingest.vectors import vector_search, hybrid_search
 from api.api_v0.docs_ingest.serializers.search import SearchResponseSerializer, SearchHitSerializer
 
+_tag_name = "Поиск по клиническим рекомендациям"
+
 class SearchViewSet(viewsets.ViewSet):
     """
     GET /search/?q=...&k=5&mode=vector&doc_id=123&section=...
@@ -14,7 +16,7 @@ class SearchViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        tags=["Search"],
+        tags=[_tag_name],
         summary="Поиск по эмбеддингам (vector/hybrid) в Qdrant",
         description=(
             "Ищет релевантные чанки по запросу `q`. "
