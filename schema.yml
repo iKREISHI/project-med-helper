@@ -140,7 +140,7 @@ paths:
   /api/v0/chat/dialogs/{id}/message:
     get:
       operationId: v0_chat_dialogs_message_retrieve
-      description: GET → история; POST → отправка сообщения.
+      description: Пагинированный список сообщений
       parameters:
       - in: path
         name: id
@@ -165,10 +165,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChatMessage'
-            text/event-stream:
-              schema:
-                type: string
+                $ref: '#/components/schemas/PaginatedChatMessage'
+              examples:
+                Default:
+                  value:
+                    count: 2
+                    next: null
+                    previous: null
+                    results:
+                    - id: 1
+                      role: user
+                      content: Привет!
+                      created_at: '2025-09-21T10:00:00Z'
+                    - id: 2
+                      role: assistant
+                      content: Здравствуйте!
+                      created_at: '2025-09-21T10:00:01Z'
+                  summary: default
           description: ''
     post:
       operationId: v0_chat_dialogs_message_create
@@ -180,14 +193,6 @@ paths:
           type: integer
         description: A unique integer value identifying this Диалог (чат-сеанс).
         required: true
-      - in: query
-        name: page
-        schema:
-          type: integer
-      - in: query
-        name: page_size
-        schema:
-          type: integer
       tags:
       - Чат-бот
       requestBody:
@@ -597,8 +602,10 @@ components:
         created_at:
           type: string
           format: date-time
+          readOnly: true
       required:
       - content
+      - created_at
       - id
       - role
     ChatRequest:
@@ -884,6 +891,27 @@ components:
       description: |-
         * `vector` - vector
         * `hybrid` - hybrid
+    PaginatedChatMessage:
+      type: object
+      description: count / next / previous / results
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+      required:
+      - count
+      - next
+      - previous
+      - results
     PaginatedDialogList:
       type: object
       required:
