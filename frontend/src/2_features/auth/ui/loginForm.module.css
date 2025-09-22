@@ -1,0 +1,13 @@
+.Container {
+  background-color: white;
+  padding: 32px;
+  border-radius: var(--radius-4);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.09);
+  max-width: 400px;
+  text-align: center;
+}
+
+.Text {
+  font-size: 14px;
+  line-height: 1.4;
+}
