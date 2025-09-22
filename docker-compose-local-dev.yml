@@ -65,6 +65,21 @@ services:
       - "6379:6379"
     networks: [ core ]
 
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile-backend
+    container_name: medhelper_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/local-dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_data:/static:ro
+    depends_on:
+      - minio
+    networks: [ core ]
+
 networks:
   core:
 

@@ -24,11 +24,15 @@ start-docker-minio:
 start-docker-qdrant:
 	docker compose --file ../docker-compose-local-dev.yml up qdrant -d
 
+start-docker-nginx:
+	docker compose --file ../docker-compose-local-dev.yml up nginx -d
+
 start-docker-develop-environment: \
 		start-docker-postgres \
 		start-docker-redis \
 		start-docker-minio \
-		start-docker-qdrant
+		start-docker-qdrant \
+		start-docker-nginx
 
 runserver:
 	uv run src/manage.py runserver
