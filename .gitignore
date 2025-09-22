@@ -7,4 +7,5 @@ celerybeat-schedule.db
 # JetBrains Junie
 .junie
 
+*/.DS_Store
 
