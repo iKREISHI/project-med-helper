@@ -38,7 +38,7 @@ from apps.llm.mode.clinical_reference_llm import ClinicalLLM
             name="Simple request",
             value={
                 "messages": [
-                    {"role": "user", "content": "Какова доза статинов при высоком риске ИБС?"}
+                    {"role": "user", "content": "Как и чем лечить пневмонию?"}
                 ],
                 "stream": False,
             },

@@ -80,7 +80,7 @@ class DialogMessageView(generics.GenericAPIView, generics.ListAPIView):
         examples=[
             OpenApiExample(
                 "Send message",
-                value={"content": "Какова доза статинов?", "stream": False},
+                value={"content": "Как и чем лечить пневмонию?", "stream": False},
                 request_only=True,
             ),
         ],
