@@ -66,6 +66,14 @@ start-app:  sync copy-sample-env \
 			import-document-templates \
 			entrypoint
 
+run-dev: sync \
+			start-docker-develop-environment \
+			migrate collect-static \
+			import-field-definitions \
+			import-document-templates \
+			entrypoint
+
+
 schema-api:
 	uv run src/manage.py spectacular --color --file ../schema.yml
 
