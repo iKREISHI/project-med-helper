@@ -24,13 +24,17 @@ start-docker-minio:
 start-docker-qdrant:
 	docker compose --file ../docker-compose-local-dev.yml up qdrant -d
 
+start-docker-nginx:
+	docker compose --file ../docker-compose-local-dev.yml up nginx -d
+
 start-docker-develop-environment: \
 		start-docker-postgres \
 		start-docker-redis \
 		start-docker-minio \
-		start-docker-qdrant
+		start-docker-qdrant \
+		start-docker-nginx
 
-runserver:
+runserver: start-docker-develop-environment
 	uv run src/manage.py runserver
 
 celery-worker:
@@ -61,6 +65,14 @@ start-app:  sync copy-sample-env \
 			import-field-definitions \
 			import-document-templates \
 			entrypoint
+
+run-dev: sync \
+			start-docker-develop-environment \
+			migrate collect-static \
+			import-field-definitions \
+			import-document-templates \
+			entrypoint
+
 
 schema-api:
 	uv run src/manage.py spectacular --color --file ../schema.yml

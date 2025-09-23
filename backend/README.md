@@ -2,23 +2,27 @@
 
 ## Разработка:
 
-### Подготовка рабочего окружения:
+### Подготовка рабочего окружения для первого запуска:
 ```bash
 make start-app
+```
+### Для последующих запусков окружения:
+```bash
+make run-dev
 ```
 
 ## Как запустить проект:
 ```bash
-uv run src/manage.py runserver 
+make runserver
 ```
 
 ## Чтобы запустить задачи в celery:
 ```bash
 # откройте новую вкладку терминала и выполните запуск службы воркера:
-cd ./src; uv run celery -A config.celery worker --loglevel=info 
+make celery-worker 
 
 # откройте новую вкладку терминала и выполните запуск службы расписания:
-cd ./src; uv run celery -A config.celery beat --loglevel=info 
+make celery-beat 
 ```
 
 Пример **.env** для работы приложения:
