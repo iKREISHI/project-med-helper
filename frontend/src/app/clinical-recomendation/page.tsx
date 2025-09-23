@@ -1,9 +1,5 @@
 "use client";
-import {
-  ClinicalRecTable,
-  DocumentOut,
-  getClinicalRecSearch,
-} from "@/3_entities/clinicalRec";
+import { ClinicalRecTable, DocumentOut } from "@/3_entities/clinicalRec";
 import { getClinicalRec } from "@/3_entities/clinicalRec";
 import { useAsync } from "@/4_shared";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
@@ -14,7 +10,7 @@ import {
   Box,
   Container,
   Spinner,
-  Heading,
+  Text,
 } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 
@@ -23,34 +19,22 @@ export default function ClinicalRecomendation() {
   const [search, setSearch] = useState("");
 
   const fetchDocuments = async () => {
-    const data = await getClinicalRec();
+    const data = await getClinicalRec(search);
     setDocuments(data);
-  };
-
-  const fetchSearchDocuments = async () => {
-    const data = await getClinicalRecSearch(search);
-    setDocuments(data);
-    console.log(data);
   };
 
   const allDocuments = useAsync(fetchDocuments);
-  const searchDocuments = useAsync(fetchSearchDocuments);
 
   useEffect(() => {
     allDocuments.run();
   }, []);
 
-  if (allDocuments.error)
-    return (
-      <div style={{ color: "var(--red-10)" }}>Error: {allDocuments.error}</div>
-    );
+  const errorMessage = allDocuments.error;
+  if (errorMessage) {
+    return <div style={{ color: "var(--red-10)" }}>Error: {errorMessage}</div>;
+  }
 
-  if (searchDocuments.error)
-    return (
-      <div style={{ color: "var(--red-10)" }}>Error: {allDocuments.error}</div>
-    );
-
-  if (allDocuments.loading || searchDocuments.loading)
+  if (allDocuments.loading)
     return (
       <Flex
         style={{
@@ -67,18 +51,12 @@ export default function ClinicalRecomendation() {
 
   return (
     <Container m="4">
-      <Flex
-        gap="3"
-        justify="between"
-        style={{ // Чтобы закрепить поле ввода на странице
-          position: "fixed",
-          width: "calc(100% - 2rem)",
-          maxWidth: "820px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 10,
-        }}
-      >
+      <Box mb="3" ml="1">
+        <Text weight="medium" size="3" color="gray">
+          Клинические рекомендации
+        </Text>
+      </Box>
+      <Flex gap="3" justify="between">
         <TextField.Root
           placeholder="Поиск..."
           style={{ backgroundColor: "var(--gray-4)", width: "100%" }}
@@ -88,7 +66,7 @@ export default function ClinicalRecomendation() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              searchDocuments.run();
+              allDocuments.run();
             }
           }}
         >
@@ -99,8 +77,8 @@ export default function ClinicalRecomendation() {
         <Box>
           <Button
             size="2"
-            onClick={() => searchDocuments.run()}
-            disabled={!search || searchDocuments.loading}
+            onClick={() => allDocuments.run()}
+            disabled={!search || allDocuments.loading}
           >
             Найти
           </Button>
@@ -108,7 +86,7 @@ export default function ClinicalRecomendation() {
       </Flex>
 
       <Box
-        mt="8"
+        mt="4"
         style={{
           backgroundColor: "white",
           borderRadius: "var(--radius-4)",

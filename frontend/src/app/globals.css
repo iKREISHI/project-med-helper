@@ -53,3 +53,7 @@ a {
   background-position: center center;
   background-size: cover;
 } */
+
+.radix-themes.rt-BaseDialogOverlay {
+  background-color: transparent !important;
+}

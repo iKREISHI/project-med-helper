@@ -24,7 +24,7 @@ export const Header = () => {
   };
 
   return (
-    <Grid className={styles.Container} gap="6" >
+    <Grid className={styles.Container} gap="6">
       <Box></Box>
 
       <NavigationMenu.Root className={styles.CenterSection}>
@@ -50,9 +50,9 @@ export const Header = () => {
                   </Link>
                 </li>
                 <li>
-                  <NavigationMenu.Link className={styles.SubLink} href="/url/documets">
-                    Умный
-                  </NavigationMenu.Link>
+                  <Link className={styles.SubLink} href="/semd-templates">
+                    Список шаблонов
+                  </Link>
                 </li>
               </ul>
             </NavigationMenu.Content>

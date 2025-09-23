@@ -40,7 +40,9 @@ export const ClinicalRecTable = ({
                 className={styles.Title}
                 title={file.title}
               >
-                {file.title || "-"}
+                {file.title || (
+                  <span style={{ fontStyle: "italic", color: 'gray' }}>Нет названия</span>
+                )}
               </Link>
             </Table.Cell>
 
