@@ -34,7 +34,7 @@ start-docker-develop-environment: \
 		start-docker-qdrant \
 		start-docker-nginx
 
-runserver:
+runserver: start-docker-develop-environment
 	uv run src/manage.py runserver
 
 celery-worker:
