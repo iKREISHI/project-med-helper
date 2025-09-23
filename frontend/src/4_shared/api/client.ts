@@ -1,3 +1,4 @@
+"use client";
 import createClient from "openapi-fetch/dist/index.cjs";
 import { apiConfig } from "../config/backend";
 import { paths } from "./types";
