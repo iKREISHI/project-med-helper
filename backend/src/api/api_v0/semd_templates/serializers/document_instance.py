@@ -1,6 +1,5 @@
 from django.db import transaction
 from rest_framework import serializers
-
 from apps.semd_templates.models import (
     DocumentTemplate,
     FieldDefinition,
@@ -10,16 +9,10 @@ from apps.semd_templates.models import (
 
 
 class FieldDefinitionSlimSerializer(serializers.ModelSerializer):
-    """
-    Короткое представление поля шаблона.
-    Берём только реально существующие колонки модели, чтобы не падать,
-    если в проекте нет, например, `type`.
-    """
     class Meta:
         model = FieldDefinition
         fields = tuple(
-            n
-            for n in ("id", "key", "label", "type")
+            n for n in ("id", "key", "label", "type")
             if n in {f.name for f in FieldDefinition._meta.fields}
         )
 
@@ -32,10 +25,8 @@ class DocumentTemplateSlimSerializer(serializers.ModelSerializer):
 
 #  VALUES (CREATE / READ)
 class DocumentFieldValueCreateSerializer(serializers.ModelSerializer):
-    """ Используется ТОЛЬКО при создании документа. """
     field_id = serializers.PrimaryKeyRelatedField(
-        queryset=FieldDefinition.objects.all(),
-        source="field",
+        queryset=FieldDefinition.objects.all(), source="field"
     )
 
     class Meta:
@@ -44,7 +35,6 @@ class DocumentFieldValueCreateSerializer(serializers.ModelSerializer):
 
 
 class DocumentFieldValueSerializer(serializers.ModelSerializer):
-    """Для чтения значений поля (GET‐запросы)"""
     field = FieldDefinitionSlimSerializer(read_only=True)
 
     class Meta:
@@ -52,14 +42,7 @@ class DocumentFieldValueSerializer(serializers.ModelSerializer):
         fields = ("id", "field", "value")
 
 
-# VALUES (UPDATE)
 class DocumentFieldValueUpdateSerializer(serializers.ModelSerializer):
-    """
-    Для PATCH одного значения И для bulk-списка.
-    * id — обязателен, чтобы знать какую строку изменять;
-    * value — обязателен, иначе валидация упадёт (это нужно для теста
-      `test_bulk_update_validation_error`).
-    """
     id = serializers.IntegerField()
     value = serializers.JSONField(required=True)
 
@@ -69,24 +52,33 @@ class DocumentFieldValueUpdateSerializer(serializers.ModelSerializer):
 
 
 class DocumentFieldValueBulkUpdateListSerializer(serializers.ListSerializer):
-    """
-    PATCH нескольких значений одним запросом.
-    Сопоставляем по первичному ключу `id`.
-    """
+    """PATCH many."""
+
     child = DocumentFieldValueUpdateSerializer()
 
-    def update(self, instances, validated_data):
-        instance_map = {obj.id: obj for obj in instances}
-        data_map = {item["id"]: item for item in validated_data}
+    def validate(self, data):
+        instance_ids = {inst.id for inst in self.instance}
+        payload_ids = {item["id"] for item in data}
 
-        updated_objects = []
-        for obj_id, obj in instance_map.items():
-            item = data_map.get(obj_id)
-            if item:
-                obj.value = item["value"]
+        # лишние ids (не принадлежат документу)
+        unknown = payload_ids - instance_ids
+        if unknown:
+            raise serializers.ValidationError(
+                f"IDs {sorted(unknown)} do not belong to this document."
+            )
+        return data
+
+    def update(self, instances, validated_data):
+        inst_map = {obj.id: obj for obj in instances}
+        data_map = {obj["id"]: obj for obj in validated_data}
+
+        updated = []
+        for obj_id, obj in inst_map.items():
+            if obj_id in data_map:
+                obj.value = data_map[obj_id]["value"]
                 obj.save(update_fields=["value"])
-            updated_objects.append(obj)
-        return updated_objects
+            updated.append(obj)
+        return updated
 
 
 # DOCUMENT (READ)
@@ -109,14 +101,22 @@ class DocumentInstanceSerializer(serializers.ModelSerializer):
 #  DOCUMENT (CREATE)
 class DocumentInstanceCreateSerializer(serializers.ModelSerializer):
     template_id = serializers.PrimaryKeyRelatedField(
-        queryset=DocumentTemplate.objects.all(),
-        source="template",
+        queryset=DocumentTemplate.objects.all(), source="template"
     )
     fields = DocumentFieldValueCreateSerializer(many=True, write_only=True)
 
     class Meta:
         model = DocumentInstance
         fields = ("template_id", "fields")
+
+    def validate(self, attrs):
+        fields_data = attrs.get("fields", [])
+        ids = [item["field"].id for item in fields_data]
+        if len(ids) != len(set(ids)):
+            raise serializers.ValidationError(
+                {"fields": "Duplicate field_id in payload."}
+            )
+        return attrs
 
     def create(self, validated_data):
         fields_data = validated_data.pop("fields", [])
@@ -133,5 +133,4 @@ class DocumentInstanceCreateSerializer(serializers.ModelSerializer):
         return doc
 
     def to_representation(self, instance):
-        """Чтобы сразу вернуть полное представление документа."""
         return DocumentInstanceSerializer(instance, context=self.context).data
