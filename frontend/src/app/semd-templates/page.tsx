@@ -10,20 +10,20 @@ import {
 } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ITEMS_ON_PAGE } from "@/3_entities/semdTemplates";
 import {
-  DocumentsTable,
-  getDocuments,
-  PatchedDocumentInstance,
-} from "@/3_entities/documents";
+  DocumentTemplate,
+  getDocumentTemplate,
+  ITEMS_ON_PAGE,
+  SemdTemplatesTable,
+} from "@/3_entities/semdTemplates";
 
 export default function ClinicalRecomendation() {
-  const [documents, setDocuments] = useState<PatchedDocumentInstance[]>([]);
+  const [documents, setDocuments] = useState<DocumentTemplate[]>([]);
   const [totalPages, setTotalPages] = useState<number | undefined>(0);
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchDocuments = async (page: number = 1) => {
-    const data = await getDocuments({ page, page_size: ITEMS_ON_PAGE });
+    const data = await getDocumentTemplate({ page, page_size: ITEMS_ON_PAGE });
     setDocuments(data.results || []);
     const totalCount = data.count ?? 0;
     setTotalPages(Math.ceil(totalCount / ITEMS_ON_PAGE));
@@ -71,7 +71,7 @@ export default function ClinicalRecomendation() {
     <Container m="4">
       <Box mb="3" ml="1">
         <Text weight="medium" size="3" color="gray">
-          Список документов
+          Список шаблонов
         </Text>
       </Box>
       <Box
@@ -82,7 +82,7 @@ export default function ClinicalRecomendation() {
         }}
         p="3"
       >
-        <DocumentsTable documents={documents} />
+        <SemdTemplatesTable documents={documents} />
       </Box>
 
       {/* Пагинация */}

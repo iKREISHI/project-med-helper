@@ -2,15 +2,15 @@
 import * as React from "react";
 import { CaretDownIcon, ExitIcon } from "@radix-ui/react-icons";
 import styles from "./header.module.css";
-import { Box, Flex, Text, DropdownMenu, Spinner } from "@radix-ui/themes";
-import { useRouter, usePathname } from "next/navigation";
+import { Box, Flex, Text, DropdownMenu, Spinner, Grid } from "@radix-ui/themes";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { logout } from "@/2_features/auth/api/logout";
 import { useUser } from "@/4_shared/hooks/useUser";
+import { NavigationMenu } from "radix-ui";
 
 export const Header = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const { user, loading, setUser } = useUser();
 
   const handleLogout = async () => {
@@ -22,31 +22,51 @@ export const Header = () => {
       console.error("Logout failed:", error);
     }
   };
-
   const menuItems = [
     { href: "/url/documets", label: "Документы" },
     { href: "/chat-bot/1", label: "Помощник" },
   ];
-
   return (
-    <Flex className={styles.Container} gap="6">
+    <Grid className={styles.Container} gap="6">
       <Box></Box>
 
-      <Box className={styles.CenterSection}>
-        <Flex gap={{ initial: "3", lg: "7" }} align="center">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${styles.Link} ${
-                pathname === item.href ? styles.ActiveLink : ""
-              }`}
-            >
-              {item.label}
+      <NavigationMenu.Root className={styles.CenterSection}>
+        <NavigationMenu.List className={styles.MenuList}>
+          <NavigationMenu.Item>
+            <Link href="/chat-bot" className={`${styles.Link} `}>
+              Помощник
             </Link>
-          ))}
-        </Flex>
-      </Box>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={`${styles.Trigger}`}>
+              Документы
+              <CaretDownIcon className={styles.CaretDown} aria-hidden />
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <ul className={styles.SubList}>
+                <li>
+                  <Link
+                    className={styles.SubLink}
+                    href="/clinical-recomendation"
+                  >
+                    Клинические рекомендации
+                  </Link>
+                </li>
+                <li>
+                  <Link className={styles.SubLink} href="/semd-templates">
+                    Список шаблонов
+                  </Link>
+                </li>
+                <li>
+                  <Link className={styles.SubLink} href="/documents">
+                    Документы
+                  </Link>
+                </li>
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+      </NavigationMenu.Root>
 
       <Box className={styles.RightSection}>
         {loading ? (
@@ -82,6 +102,6 @@ export const Header = () => {
           </Link>
         )}
       </Box>
-    </Flex>
+    </Grid>
   );
 };

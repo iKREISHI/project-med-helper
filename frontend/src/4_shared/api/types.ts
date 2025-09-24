@@ -289,6 +289,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v0/semd-documents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Список документов */
+        get: operations["v0_semd_documents_list"];
+        put?: never;
+        /** Создать документ */
+        post: operations["v0_semd_documents_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v0/semd-documents/{document_pk}/fields/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Все значения полей */
+        get: operations["v0_semd_documents_fields_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v0/semd-documents/{document_pk}/fields/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["v0_semd_documents_fields_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Обновить одно значение */
+        patch: operations["v0_semd_documents_fields_partial_update"];
+        trace?: never;
+    };
+    "/api/v0/semd-documents/{document_pk}/fields/bulk_update/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Массовое обновление значений */
+        patch: operations["v0_semd_documents_fields_bulk_update_partial_update"];
+        trace?: never;
+    };
+    "/api/v0/semd-documents/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Получить документ */
+        get: operations["v0_semd_documents_retrieve"];
+        put: operations["v0_semd_documents_update"];
+        post?: never;
+        /** Удалить документ */
+        delete: operations["v0_semd_documents_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["v0_semd_documents_partial_update"];
+        trace?: never;
+    };
     "/api/v0/test_chat_api/": {
         parameters: {
             query?: never;
@@ -400,6 +487,36 @@ export interface components {
             /** @default false */
             stream: boolean;
         };
+        DocumentFieldValue: {
+            readonly id: number;
+            readonly field: components["schemas"]["FieldDefinitionSlim"];
+            /** Значение */
+            value?: unknown;
+        };
+        DocumentFieldValueCreate: {
+            field_id: number;
+            /** Значение */
+            value?: unknown;
+        };
+        DocumentFieldValueUpdate: {
+            id: number;
+            value: unknown;
+        };
+        DocumentInstance: {
+            readonly id: number;
+            readonly template: components["schemas"]["DocumentTemplateSlim"];
+            /** Пользователь */
+            user: number;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+            readonly field_values: components["schemas"]["DocumentFieldValue"][];
+        };
+        DocumentInstanceCreate: {
+            template_id: number;
+            fields: components["schemas"]["DocumentFieldValueCreate"][];
+        };
         DocumentOut: {
             readonly id: number;
             title?: string;
@@ -434,6 +551,14 @@ export interface components {
              */
             description?: string;
             readonly fields: components["schemas"]["TemplateField"][];
+        };
+        DocumentTemplateSlim: {
+            readonly id: number;
+            /**
+             * Название шаблона
+             * @description Название медицинского документа (например 'Эпикриз').
+             */
+            name: string;
         };
         DocumentUpload: {
             readonly id: number;
@@ -489,6 +614,19 @@ export interface components {
              *     * `both` - Обе
              */
             validation_strategy?: components["schemas"]["ValidationStrategyEnum"];
+        };
+        FieldDefinitionSlim: {
+            readonly id: number;
+            /**
+             * Ключ поля
+             * @description Уникальный технический идентификатор поля в системе (например 'anamnesis').
+             */
+            key: string;
+            /**
+             * Название поля
+             * @description Отображаемое название поля для пользователя (например 'Анамнез').
+             */
+            label: string;
         };
         /**
          * @description * `text` - Текст
@@ -553,6 +691,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Dialog"][];
         };
+        PaginatedDocumentInstanceList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["DocumentInstance"][];
+        };
         PaginatedDocumentTemplateList: {
             /** @example 123 */
             count: number;
@@ -582,6 +735,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["FieldDefinition"][];
+        };
+        PatchedDocumentFieldValueUpdate: {
+            id?: number;
+            value?: unknown;
+        };
+        PatchedDocumentInstance: {
+            readonly id?: number;
+            readonly template?: components["schemas"]["DocumentTemplateSlim"];
+            /** Пользователь */
+            user?: number;
+            /** Format: date-time */
+            readonly created_at?: string;
+            /** Format: date-time */
+            readonly updated_at?: string;
+            readonly field_values?: components["schemas"]["DocumentFieldValue"][];
         };
         /** @description Сериализатор регистрации пользователя.
          *
@@ -1111,6 +1279,242 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DocumentTemplate"];
+                };
+            };
+        };
+    };
+    v0_semd_documents_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDocumentInstanceList"];
+                };
+            };
+        };
+    };
+    v0_semd_documents_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DocumentInstanceCreate"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentInstance"];
+                };
+            };
+        };
+    };
+    v0_semd_documents_fields_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_pk: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentFieldValue"][];
+                };
+            };
+        };
+    };
+    v0_semd_documents_fields_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_pk: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DocumentFieldValue"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentFieldValue"];
+                };
+            };
+        };
+    };
+    v0_semd_documents_fields_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_pk: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDocumentFieldValueUpdate"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentFieldValue"];
+                };
+            };
+        };
+    };
+    v0_semd_documents_fields_bulk_update_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_pk: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DocumentFieldValueUpdate"][];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentFieldValue"][];
+                };
+            };
+        };
+    };
+    v0_semd_documents_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentInstance"];
+                };
+            };
+        };
+    };
+    v0_semd_documents_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DocumentInstance"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentInstance"];
+                };
+            };
+        };
+    };
+    v0_semd_documents_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v0_semd_documents_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDocumentInstance"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentInstance"];
                 };
             };
         };
