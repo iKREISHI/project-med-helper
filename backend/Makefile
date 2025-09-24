@@ -55,6 +55,11 @@ import-document-templates:
 export-document-templates:
 	uv run src/manage.py export_document_templates
 
+import-templates-semd-document:
+	uv run src/manage.py import_documents \
+	--file=./src/json_examples/semd_document_example.json \
+	-u admin
+
 entrypoint:
 	uv run src/manage.py create_superuser --username admin --dev-pass
 	uv run src/manage.py create_positions --medical-set
