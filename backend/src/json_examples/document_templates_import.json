@@ -1,185 +1,347 @@
 [
-    {
-        "name": "Эпикриз",
-        "slug": "epikriz",
-        "description": "Выписной - документ, оформляемым при выписке пациента из стационара или переводе в другое отделение. Его оформление регламентируется рядом нормативных актов Российской Федерации, в частности, Приказом Министерства здравоохранения РФ от 5 августа 2022 года № 530н",
-        "fields": [
-            {
-                "key": "medical_organization",
-                "label": "Наименование медицинской организации",
-                "field_type": "text",
-                "required": true,
-                "server_validators": [
-                    "not_empty",
-                    "max_length:500"
-                ],
-                "validation_strategy": "server",
-                "order": 0
-            },
-            {
-                "key": "department",
-                "label": "Наименование отделения",
-                "field_type": "text",
-                "required": true,
-                "server_validators": [
-                    "not_empty",
-                    "max_length:255"
-                ],
-                "validation_strategy": "server",
-                "order": 0
-            },
-            {
-                "key": "medical_card_number",
-                "label": "Номер медицинской карты",
-                "field_type": "text",
-                "required": true,
-                "server_validators": [
-                    "not_empty",
-                    "max_length:100"
-                ],
-                "validation_strategy": "server",
-                "order": 0
-            },
-            {
-                "key": "full_name",
-                "label": "ФИО",
-                "field_type": "text",
-                "required": true,
-                "server_validators": [
-                    "not_empty",
-                    "max_length:255"
-                ],
-                "validation_strategy": "server",
-                "order": 0
-            },
-            {
-                "key": "date_of_birth",
-                "label": "Дата рождения",
-                "field_type": "date",
-                "required": true,
-                "server_validators": [],
-                "validation_strategy": "server",
-                "order": 0
-            },
-            {
-                "key": "address",
-                "label": "Адрес",
-                "field_type": "long_text",
-                "required": false,
-                "server_validators": [
-                    "max_length:1000"
-                ],
-                "validation_strategy": "server",
-                "order": 0
-            },
-            {
-                "key": "diagnosis",
-                "label": "Диагноз",
-                "field_type": "text",
-                "required": true,
-                "server_validators": [
-                    "not_empty",
-                    "max_length:500"
-                ],
-                "validation_strategy": "both",
-                "order": 0
-            },
-            {
-                "key": "treatment_provided",
-                "label": "Проведенное лечение",
-                "field_type": "long_text",
-                "required": false,
-                "server_validators": [
-                    "max_length:2000"
-                ],
-                "validation_strategy": "both",
-                "order": 0
-            },
-            {
-                "key": "complications",
-                "label": "Осложнения",
-                "field_type": "long_text",
-                "required": false,
-                "server_validators": [
-                    "max_length:1000"
-                ],
-                "validation_strategy": "both",
-                "order": 0
-            },
-            {
-                "key": "prognosis",
-                "label": "Прогноз",
-                "field_type": "long_text",
-                "required": false,
-                "server_validators": [
-                    "max_length:1000"
-                ],
-                "validation_strategy": "both",
-                "order": 0
-            },
-            {
-                "key": "recommendations",
-                "label": "Рекомендации",
-                "field_type": "long_text",
-                "required": false,
-                "server_validators": [
-                    "max_length:1000"
-                ],
-                "validation_strategy": "both",
-                "order": 0
-            },
-            {
-                "key": "work_capacity_assessment",
-                "label": "Оценка трудоспособности",
-                "field_type": "text",
-                "required": false,
-                "server_validators": [
-                    "max_length:500"
-                ],
-                "validation_strategy": "both",
-                "order": 0
-            }
-        ]
-    },
-    {
-        "name": "Справка о судимости",
-        "slug": "spravka-o-sudimosti",
-        "description": "",
-        "fields": [
-            {
-                "key": "full_name",
-                "label": "ФИО",
-                "field_type": "text",
-                "required": true,
-                "server_validators": [
-                    "not_empty",
-                    "max_length:255"
-                ],
-                "validation_strategy": "server",
-                "order": 0
-            },
-            {
-                "key": "blood_type",
-                "label": "Группа крови",
-                "field_type": "text",
-                "required": false,
-                "server_validators": [
-                    "regex:^(A|B|AB|O)[+-]$"
-                ],
-                "validation_strategy": "server",
-                "order": 1
-            },
-            {
-                "key": "chronic_diseases",
-                "label": "Хронические заболевания",
-                "field_type": "long_text",
-                "required": false,
-                "server_validators": [
-                    "max_length:1000"
-                ],
-                "validation_strategy": "both",
-                "order": 2
-            }
-        ]
-    }
+  {
+    "name": "Приём врача",
+    "slug": "priem-vracha",
+    "description": "Шаблон документа амбулаторного первичного или повторного приёма пациента врачом-специалистом.",
+    "fields": [
+      {
+        "key": "medical_organization",
+        "label": "Наименование медицинской организации",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:500"],
+        "validation_strategy": "server",
+        "order": 0
+      },
+      {
+        "key": "department",
+        "label": "Наименование отделения",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:255"],
+        "validation_strategy": "server",
+        "order": 1
+      },
+      {
+        "key": "medical_card_number",
+        "label": "Номер медицинской карты",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:100"],
+        "validation_strategy": "server",
+        "order": 2
+      },
+      {
+        "key": "full_name",
+        "label": "ФИО",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:255"],
+        "validation_strategy": "server",
+        "order": 3
+      },
+      {
+        "key": "date_of_birth",
+        "label": "Дата рождения",
+        "field_type": "date",
+        "required": true,
+        "server_validators": [],
+        "validation_strategy": "server",
+        "order": 4
+      },
+      {
+        "key": "phone",
+        "label": "Телефон",
+        "field_type": "text",
+        "required": false,
+        "server_validators": ["regex:^\\+?\\d{10,15}$"],
+        "validation_strategy": "server",
+        "order": 5
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "field_type": "text",
+        "required": false,
+        "server_validators": ["regex:^\\S+@\\S+\\.\\S+$"],
+        "validation_strategy": "server",
+        "order": 6
+      },
+      {
+        "key": "complaints_symptoms",
+        "label": "Симптоматика и жалобы",
+        "field_type": "long_text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:2000"],
+        "validation_strategy": "both",
+        "order": 7
+      },
+      {
+        "key": "anamnesis",
+        "label": "Анамнез",
+        "field_type": "long_text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:2000"],
+        "validation_strategy": "both",
+        "order": 8
+      },
+      {
+        "key": "diagnosis",
+        "label": "Диагноз",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:500"],
+        "validation_strategy": "both",
+        "order": 9
+      },
+      {
+        "key": "treatment",
+        "label": "Проведенное лечение",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:2000"],
+        "validation_strategy": "both",
+        "order": 10
+      },
+      {
+        "key": "recommendations",
+        "label": "Рекомендации",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "both",
+        "order": 11
+      },
+      {
+        "key": "work_capacity_assessment",
+        "label": "Оценка трудоспособности",
+        "field_type": "text",
+        "required": false,
+        "server_validators": ["max_length:500"],
+        "validation_strategy": "both",
+        "order": 12
+      }
+    ]
+  },
+  {
+    "name": "Профилактический медицинский осмотр",
+    "slug": "medicinskiy-osmotr",
+    "description": "Шаблон документа периодического профилактического медосмотра работников или учащихся.",
+    "fields": [
+      {
+        "key": "medical_organization",
+        "label": "Наименование медицинской организации",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:500"],
+        "validation_strategy": "server",
+        "order": 0
+      },
+      {
+        "key": "department",
+        "label": "Наименование отделения",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:255"],
+        "validation_strategy": "server",
+        "order": 1
+      },
+      {
+        "key": "medical_card_number",
+        "label": "Номер медицинской карты",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:100"],
+        "validation_strategy": "server",
+        "order": 2
+      },
+      {
+        "key": "full_name",
+        "label": "ФИО",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:255"],
+        "validation_strategy": "server",
+        "order": 3
+      },
+      {
+        "key": "date_of_birth",
+        "label": "Дата рождения",
+        "field_type": "date",
+        "required": true,
+        "server_validators": [],
+        "validation_strategy": "server",
+        "order": 4
+      },
+      {
+        "key": "address",
+        "label": "Адрес",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "server",
+        "order": 5
+      },
+      {
+        "key": "height",
+        "label": "Рост",
+        "field_type": "integer",
+        "required": false,
+        "server_validators": ["min_value:0", "max_value:300"],
+        "validation_strategy": "server",
+        "order": 6
+      },
+      {
+        "key": "weight",
+        "label": "Вес",
+        "field_type": "decimal",
+        "required": false,
+        "server_validators": ["min_value:0", "max_value:500"],
+        "validation_strategy": "server",
+        "order": 7
+      },
+      {
+        "key": "blood_type",
+        "label": "Группа крови",
+        "field_type": "text",
+        "required": false,
+        "server_validators": ["regex:^(A|B|AB|O)[+-]$"],
+        "validation_strategy": "server",
+        "order": 8
+      },
+      {
+        "key": "allergies",
+        "label": "Аллергии",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "both",
+        "order": 9
+      },
+      {
+        "key": "chronic_diseases",
+        "label": "Хронические заболевания",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "both",
+        "order": 10
+      },
+      {
+        "key": "complaints_symptoms",
+        "label": "Симптоматика и жалобы",
+        "field_type": "long_text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:2000"],
+        "validation_strategy": "both",
+        "order": 11
+      },
+      {
+        "key": "diagnosis",
+        "label": "Диагноз",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:500"],
+        "validation_strategy": "both",
+        "order": 12
+      },
+      {
+        "key": "work_capacity_assessment",
+        "label": "Оценка трудоспособности",
+        "field_type": "text",
+        "required": false,
+        "server_validators": ["max_length:500"],
+        "validation_strategy": "both",
+        "order": 13
+      },
+      {
+        "key": "recommendations",
+        "label": "Рекомендации",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "both",
+        "order": 14
+      }
+    ]
+  },
+  {
+    "name": "Справка для бассейна",
+    "slug": "spravka-dlya-basseyna",
+    "description": "Документ, подтверждающий отсутствие медицинских противопоказаний для посещения плавательного бассейна.",
+    "fields": [
+      {
+        "key": "medical_organization",
+        "label": "Наименование медицинской организации",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:500"],
+        "validation_strategy": "server",
+        "order": 0
+      },
+      {
+        "key": "department",
+        "label": "Наименование отделения",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:255"],
+        "validation_strategy": "server",
+        "order": 1
+      },
+      {
+        "key": "full_name",
+        "label": "ФИО",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:255"],
+        "validation_strategy": "server",
+        "order": 2
+      },
+      {
+        "key": "date_of_birth",
+        "label": "Дата рождения",
+        "field_type": "date",
+        "required": true,
+        "server_validators": [],
+        "validation_strategy": "server",
+        "order": 3
+      },
+      {
+        "key": "diagnosis",
+        "label": "Диагноз",
+        "field_type": "text",
+        "required": true,
+        "server_validators": ["not_empty", "max_length:500"],
+        "validation_strategy": "both",
+        "order": 4
+      },
+      {
+        "key": "allergies",
+        "label": "Аллергии",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "both",
+        "order": 5
+      },
+      {
+        "key": "chronic_diseases",
+        "label": "Хронические заболевания",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "both",
+        "order": 6
+      },
+      {
+        "key": "recommendations",
+        "label": "Рекомендации",
+        "field_type": "long_text",
+        "required": false,
+        "server_validators": ["max_length:1000"],
+        "validation_strategy": "both",
+        "order": 7
+      }
+    ]
+  }
 ]
