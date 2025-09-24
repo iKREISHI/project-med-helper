@@ -138,7 +138,7 @@ export default function ChatBot() {
                   msg.role === 'user' ? styles.UserMessage : styles.BotMessage
                 }
               >
-                <ChatCloud isSending={msg.role === 'user'}>
+                <ChatCloud isSending={msg.role === 'user'} time="12:40">
                   {msg.isThinking ? (
                     <Flex align="center" gap="2">
                       <Spinner size="2" />

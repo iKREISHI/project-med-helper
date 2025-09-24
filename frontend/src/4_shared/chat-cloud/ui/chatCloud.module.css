@@ -1,23 +1,41 @@
 :root {
-  --back-color: rgb(217, 243, 255);
-  --back-color-sender: rgb(103, 207, 255);
+  --back-color: rgb(50, 190, 255);
+  --back-color-sender: rgb(233, 233, 233);
+  --font-sender: rgb(34, 34, 34); 
+  --font:rgb(243, 243, 243); 
 }
 
 .Sender {
-  padding: 10px 13px;
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-align: left;
+  max-width: 70%; /* облако не шире 70% контейнера */
+  min-width: 40px; /* чтобы короткие сообщения не сжимались слишком сильно */
+  /* одинаковый паддинг */
+  padding: 10px 22px;
 }
 
 .Root {
   background-color: var(--back-color);
   border-radius: 15px 15px 0px 15px;
+  color:var(--font)
 }
 
 .RootSender {
-  color: white;
+  color: var(--font-sender);
   background-color: var(--back-color-sender);
   border-radius: 15px 15px 15px 0px;
+}
+
+.Content{
+  margin-bottom: 4px;
+}
+
+.Time{
+  font-size: 0.9rem;
 }
