@@ -28,6 +28,10 @@ make celery-beat
 ```bash
 make import-templates-semd-document
 ```
+## Зазгрузить в БД PDF-ки:
+```bash
+ uv run src/manage.py import_pdfs --path /Users/vadimaskarov/PycharmProjects/project-med-helper/backend/pdf_examples --owner 2    
+```
 
 Пример **.env** для работы приложения:
 ```bash
