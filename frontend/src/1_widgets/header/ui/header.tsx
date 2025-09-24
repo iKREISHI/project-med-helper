@@ -22,10 +22,6 @@ export const Header = () => {
       console.error("Logout failed:", error);
     }
   };
-  const menuItems = [
-    { href: "/url/documets", label: "Документы" },
-    { href: "/chat-bot/1", label: "Помощник" },
-  ];
   return (
     <Grid className={styles.Container} gap="6">
       <Box></Box>
@@ -33,7 +29,12 @@ export const Header = () => {
       <NavigationMenu.Root className={styles.CenterSection}>
         <NavigationMenu.List className={styles.MenuList}>
           <NavigationMenu.Item>
-            <Link href="/chat-bot" className={`${styles.Link} `}>
+            <Link href="/" className={`${styles.Link} `}>
+              Главная
+            </Link>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <Link href="/chat-bot/1" className={`${styles.Link} `}>
               Помощник
             </Link>
           </NavigationMenu.Item>

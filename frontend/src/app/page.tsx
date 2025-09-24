@@ -1,3 +1,4 @@
+'use client';
 import styles from "./page.module.css";
 import {
   Bookmarks,
@@ -5,9 +6,12 @@ import {
   FileGroups,
   FileItemsList,
 } from "@/1_widgets/dashboard";
+import { useDocuments } from "@/2_features/mainPage/useDocument";
 import { Box, Container, Grid, ScrollArea } from "@radix-ui/themes";
+import path from "path";
 
 export default function Home() {
+  const {data, last, loading, error} = useDocuments();
   return (
     <ScrollArea
       type="auto"
@@ -18,65 +22,32 @@ export default function Home() {
       <Container>
         <Box className={styles.Container} py="4" px={{ initial: "4", lg: "0" }}>
           <FileDetails
-            name="Lorem ipsum dolor sit amet consectetur adipisicing"
+            name={last?.template?.name}
             info={{
-              create_at: "Пн, Апр 23 2025",
-              modified_at: "Пн, Апр 23 2025",
-              path: "tmp/",
-              size: "1Мб",
+              create_at: last?.created_at,
+              modified_at: last?.created_at,
+              path: "/semd-templates",
+              size: '1mb',
               type: "PDF",
             }}
-            description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque nisi laboriosam in hic quibusdam, blanditiis illum voluptatum? Laudantium ex in et, nisi beatae adipisci voluptatem eos debitis quia sequi! Sit."
+            description = {'Последний документ'}
           />
           <FileItemsList
-            files={[
-              {
-                name: "Максимально длинное название, чтобы оно не влезло в блок",
-                path: "tmp/",
-                create_at: "05.05.2005",
-                type: "xsl",
-              },
-              {
-                name: "Название",
-                path: "tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/tmp/",
-                create_at: "05.05.2005",
-                type: "pdf",
-              },
-              {
-                name: "Название",
-                path: "tmp/",
-                create_at: "05.05.2005",
-                type: "pdf",
-              },
-              {
-                name: "Название",
-                path: "tmp/",
-                create_at: "05.05.2005",
-                type: "docx",
-              },
-              {
-                name: "Название",
-                path: "tmp/",
-                create_at: "05.05.2005",
-                type: "xlsx",
-              },
-              {
-                name: "Название",
-                path: "tmp/",
-                create_at: "05.05.2005",
-                type: "text",
-              },
-            ]}
-          />
+  files={data?.map(file => ({
+    name: file.template?.name,
+    path: '/semd-templates',
+    create_at: file.created_at,
+    type: 'pdf'
+  }))}
+/>
           <Grid gap="4" columns={{ initial: "1", md: "2" }}>
-            <FileGroups
-              items={[
-                { id: 1, name: "Группа 1", path: "/groups/1" },
-                { id: 2, name: "Группа 2", path: "/groups/2" },
-                { id: 3, name: "Группа 3", path: "/groups/3" },
-                { id: 3, name: "Группа 3", path: "/groups/3" },
-              ]}
-            />
+<FileGroups
+  items={[
+    {id:1, name: 'Обследования', path:'/documents'},
+    {id:2, name: 'Правовая информация', path:'/documents'},
+    {id:3, name: 'Отчетность', path:'/documents'}
+  ]}
+/>
             <Bookmarks />
           </Grid>
         </Box>

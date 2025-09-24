@@ -10,9 +10,7 @@
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  display: inline-block;
   text-align: left;
   max-width: 70%; /* облако не шире 70% контейнера */
   min-width: 40px; /* чтобы короткие сообщения не сжимались слишком сильно */
