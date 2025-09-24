@@ -16,7 +16,7 @@ class DocumentFieldValidationSerializer(serializers.Serializer):
     llm_errors = serializers.ListField(
         child=serializers.CharField(),
         read_only=True,
-        help_text="Ошибки LLM-валидации.",
+        help_text="Ошибки LLM-валидации (если включена).",
     )
     status = serializers.ChoiceField(
         choices=[("valid", "valid"), ("invalid", "invalid")],
@@ -39,34 +39,21 @@ class DocumentInstanceValidationResponseSerializer(serializers.Serializer):
         read_only=True,
         help_text="Подробные результаты по каждому полю.",
     )
-    llm_payload = serializers.CharField(
+    recommendations = serializers.CharField(
         read_only=True,
         allow_blank=True,
-        help_text=(
-            "JSON, отправляемый LLM-сервису (показывается только если "
-            "в документе есть поля со стратегией 'llm' или 'both')."
-        ),
+        help_text="Человеческие рекомендации по исправлению и улучшению документа.",
     )
 
 
 class DocumentInstanceSerializer(serializers.ModelSerializer):
     """
-    Базовый сериализатор для retrieve (GET /documents/{id}/).
+    Базовый сериализатор для retrieve.
     """
-    template = serializers.SlugRelatedField(
-        read_only=True, slug_field="slug"
-    )
-    user = serializers.SlugRelatedField(
-        read_only=True, slug_field="username"
-    )
+    template = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+    user = serializers.SlugRelatedField(read_only=True, slug_field="username")
 
     class Meta:
         model = DocumentInstance
-        fields = (
-            "id",
-            "template",
-            "user",
-            "created_at",
-            "updated_at",
-        )
+        fields = ("id", "template", "user", "created_at", "updated_at")
         read_only_fields = fields

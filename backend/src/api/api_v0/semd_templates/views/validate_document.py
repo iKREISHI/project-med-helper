@@ -4,11 +4,7 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
-    OpenApiExample,
-)
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
 
 from apps.semd_templates.models import DocumentInstance
 from apps.semd_templates.validators.services import validate_document_instance
@@ -29,9 +25,7 @@ class DocumentValidatorViewSet(
     viewsets.GenericViewSet,
 ):
     """
-    Только read-доступ + отдельное действие `validate`.
-
-    Право на доступ — владелец документа или staff-пользователь.
+    Только read-доступ + POST-действие `validate`.
     """
     queryset = (
         DocumentInstance.objects.select_related("template", "user").all()
@@ -39,20 +33,14 @@ class DocumentValidatorViewSet(
     serializer_class = DocumentInstanceSerializer
     permission_classes = [IsAuthenticated]
 
-    # кастомное действие
     @extend_schema(
         tags=["SEMD module"],
         methods=["POST"],
         summary="Проверить документ",
         description=(
-            "Запускает серверную и/или LLM-валидацию всех полей в "
-            "документе.\n\n"
-            "- Если стратегия поля = `server`, проверяется только сервер.\n"
-            "- `llm` — только ИИ (пока заглушка).\n"
-            "- `both` — и сервер, и ИИ.\n"
-            "- `none` — ничего.\n\n"
-            "В ответе возвращается JSON с подробными результатами и, при "
-            "наличии, сформированный payload для LLM-сервиса."
+            "Запускает серверную и опциональную LLM-валидацию всех полей.\n\n"
+            "Ответ теперь содержит поле `recommendations` — человеко-читаемый "
+            "текст с ошибками и улучшениями. Поле `llm_payload` удалено."
         ),
         responses={
             200: DocumentInstanceValidationResponseSerializer,
@@ -71,7 +59,7 @@ class DocumentValidatorViewSet(
                             "status": "valid",
                         }
                     },
-                    "llm_payload": "",
+                    "recommendations": "Ошибок не найдено.",
                 },
                 response_only=True,
             ),
@@ -81,16 +69,17 @@ class DocumentValidatorViewSet(
                     "overall_status": "invalid",
                     "fields": {
                         "blood_pressure": {
-                            "server_errors": [
-                                "Значение должно быть ≤ 200."
-                            ],
+                            "server_errors": ["Значение должно быть ≤ 200."],
                             "llm_errors": [],
                             "status": "invalid",
                         }
                     },
-                    "llm_payload": "{\n  \"template_slug\": \"epicrisis\",\n  "
-                    "\"document_id\": 42,\n  \"fields\": {\n    \"anamnesis\": "
-                    "\"Пациент жалуется ...\"\n  }\n}",
+                    "recommendations": (
+                        "Ошибки:\n"
+                        "• Поле «blood_pressure» превышает допустимый порог.\n\n"
+                        "Можно улучшить:\n"
+                        "• Заполнить поле «anamnesis» более детально."
+                    ),
                 },
                 response_only=True,
             ),
@@ -105,22 +94,19 @@ class DocumentValidatorViewSet(
     def validate(self, request, pk: int | str = None):
         instance = self.get_object()
 
-        # Проверка прав доступа
         if instance.user != request.user and not request.user.is_staff:
             return Response(
                 {"detail": "Недостаточно прав."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        is_valid, details, llm_payload_json = validate_document_instance(
-            instance
-        )
+        is_valid, details, feedback = validate_document_instance(instance)
 
         serializer = DocumentInstanceValidationResponseSerializer(
             {
                 "overall_status": "valid" if is_valid else "invalid",
                 "fields": details,
-                "llm_payload": llm_payload_json,
+                "recommendations": feedback,
             }
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
