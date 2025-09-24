@@ -104,7 +104,7 @@ export const SidebarDialogs: React.FC<SidebarProps> = ({ className, items }) => 
       <div className={styles.SidebarScrollContainer}>
         <div className={styles.SidebarContent}>
           {isSidebarOpen &&
-            items.map((item) => <SidebarLink key={item.id} item={item} />)}
+            items.map((item) => <SidebarLink key={item.id} item={item}/>)}
         </div>
         
       </div>

@@ -25,7 +25,7 @@ export const Header = () => {
 
   const menuItems = [
     { href: "/url/documets", label: "Документы" },
-    { href: "/chat-bot", label: "Помощник" },
+    { href: "/chat-bot/1", label: "Помощник" },
   ];
 
   return (
