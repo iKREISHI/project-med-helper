@@ -7,13 +7,15 @@
     "build": "next build --turbopack",
     "start": "next start",
     "generate:types": "openapi-typescript  http://127.0.0.1:8000/api/schema/ -o src/4_shared/api/types.ts",
-    "devtypes":"npm run generate:types"
+    "devtypes": "npm run generate:types"
   },
   "dependencies": {
     "@onlyoffice/document-editor-react": "^2.1.1",
     "@radix-ui/react-icons": "^1.3.2",
     "@radix-ui/themes": "^3.2.1",
+    "@tanstack/react-query": "^5.90.1",
     "highlight.js": "^11.11.1",
+    "lucide-react": "^0.544.0",
     "next": "15.5.3",
     "openapi-fetch": "^0.14.0",
     "react": "19.1.0",

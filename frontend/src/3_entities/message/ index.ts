@@ -1,0 +1,1 @@
+export { getAllMessages } from './api/getAllMessages'

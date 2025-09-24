@@ -97,7 +97,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description GET → история; POST → отправка сообщения. */
+        /** @description Пагинированный список сообщений */
         get: operations["v0_chat_dialogs_message_retrieve"];
         put?: never;
         /** @description GET → история; POST → отправка сообщения. */
@@ -108,7 +108,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v0/document/": {
+    "/api/v0/clinical-recomendation/document/": {
         parameters: {
             query?: never;
             header?: never;
@@ -119,20 +119,20 @@ export interface paths {
          * Список документов
          * @description Возвращает список загруженных документов, отсортированных по дате создания (DESC).
          */
-        get: operations["v0_document_list"];
+        get: operations["v0_clinical_recomendation_document_list"];
         put?: never;
         /**
          * Загрузить документ
          * @description Загружает файл (PDF/DOCX/...), создаёт запись и ставит в очередь пайплайн парсинга/индексации.
          */
-        post: operations["v0_document_create"];
+        post: operations["v0_clinical_recomendation_document_create"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v0/document/{id}/": {
+    "/api/v0/clinical-recomendation/document/{id}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -140,7 +140,7 @@ export interface paths {
             cookie?: never;
         };
         /** Получить документ */
-        get: operations["v0_document_retrieve"];
+        get: operations["v0_clinical_recomendation_document_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -149,7 +149,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v0/document/{id}/purge/": {
+    "/api/v0/clinical-recomendation/document/{id}/purge/": {
         parameters: {
             query?: never;
             header?: never;
@@ -163,13 +163,13 @@ export interface paths {
          * Удалить документ и его эмбеддинги
          * @description Удаляет документ из БД и все связанные точки из Qdrant.
          */
-        delete: operations["v0_document_purge_destroy"];
+        delete: operations["v0_clinical_recomendation_document_purge_destroy"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v0/document/{id}/reindex/": {
+    "/api/v0/clinical-recomendation/document/{id}/reindex/": {
         parameters: {
             query?: never;
             header?: never;
@@ -182,7 +182,27 @@ export interface paths {
          * Переиндексировать документ
          * @description Повторно запускает пайплайн парсинга/чанкинга/эмбеддингов/апсерта в Qdrant.
          */
-        post: operations["v0_document_reindex_create"];
+        post: operations["v0_clinical_recomendation_document_reindex_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v0/clinical-recomendation/search/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Поиск по эмбеддингам (vector/hybrid) в Qdrant
+         * @description Ищет релевантные чанки по запросу `q`. `mode=vector` — чисто векторный поиск, `mode=hybrid` — гибридный (вектор + полнотекст, если настроен индекс). По умолчанию результаты ограничены документами текущего пользователя.
+         */
+        get: operations["v0_clinical_recomendation_search_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -221,26 +241,6 @@ export interface paths {
          * @description Возвращает одно поле по ID.
          */
         get: operations["v0_field_definitions_retrieve"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v0/search/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Поиск по эмбеддингам (vector/hybrid) в Qdrant
-         * @description Ищет релевантные чанки по запросу `q`. `mode=vector` — чисто векторный поиск, `mode=hybrid` — гибридный (вектор + полнотекст, если настроен индекс). По умолчанию результаты ограничены документами текущего пользователя.
-         */
-        get: operations["v0_search_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -300,7 +300,7 @@ export interface paths {
         put?: never;
         /**
          * Unified chat completions (clinical & generic)
-         * @description /api/chat/  (POST → create)
+         * @description /api/test-chat/  (POST → create)
          *
          *     Настраиваемые query-параметры:
          *         mode     – 'vector' | 'hybrid'  (по умолчанию 'vector')
@@ -368,7 +368,7 @@ export interface components {
             role: components["schemas"]["RoleEnum"];
             content: string;
             /** Format: date-time */
-            created_at?: string;
+            readonly created_at: string;
         };
         ChatRequest: {
             messages: components["schemas"]["ChatMessage"][];
@@ -531,6 +531,13 @@ export interface components {
          * @enum {string}
          */
         ModeEnum: "vector" | "hybrid";
+        /** @description count / next / previous / results */
+        PaginatedChatMessage: {
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["ChatMessage"][];
+        };
         PaginatedDialogList: {
             /** @example 123 */
             count: number;
@@ -838,18 +845,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ChatMessage"];
-                    "text/event-stream": string;
+                    "application/json": components["schemas"]["PaginatedChatMessage"];
                 };
             };
         };
     };
     v0_chat_dialogs_message_create: {
         parameters: {
-            query?: {
-                page?: number;
-                page_size?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description A unique integer value identifying this Диалог (чат-сеанс). */
@@ -874,7 +877,7 @@ export interface operations {
             };
         };
     };
-    v0_document_list: {
+    v0_clinical_recomendation_document_list: {
         parameters: {
             query?: {
                 /** @description (опц.) Поиск по title/source (если добавите фильтрацию) */
@@ -896,7 +899,7 @@ export interface operations {
             };
         };
     };
-    v0_document_create: {
+    v0_clinical_recomendation_document_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -919,12 +922,12 @@ export interface operations {
             };
         };
     };
-    v0_document_retrieve: {
+    v0_clinical_recomendation_document_retrieve: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this Медицинский документ. */
+                /** @description A unique integer value identifying this Клинические рекомендации. */
                 id: number;
             };
             cookie?: never;
@@ -941,12 +944,12 @@ export interface operations {
             };
         };
     };
-    v0_document_purge_destroy: {
+    v0_clinical_recomendation_document_purge_destroy: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this Медицинский документ. */
+                /** @description A unique integer value identifying this Клинические рекомендации. */
                 id: number;
             };
             cookie?: never;
@@ -962,12 +965,12 @@ export interface operations {
             };
         };
     };
-    v0_document_reindex_create: {
+    v0_clinical_recomendation_document_reindex_create: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this Медицинский документ. */
+                /** @description A unique integer value identifying this Клинические рекомендации. */
                 id: number;
             };
             cookie?: never;
@@ -986,6 +989,36 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    v0_clinical_recomendation_search_list: {
+        parameters: {
+            query: {
+                /** @description (опц.) Фильтр по конкретному документу */
+                doc_id?: number;
+                /** @description Количество результатов (top-k) */
+                k?: number;
+                /** @description Режим поиска: vector | hybrid */
+                mode?: string;
+                /** @description Поисковый запрос */
+                q: string;
+                /** @description (опц.) Фильтр по названию/части названия раздела (payload.section) */
+                section?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"][];
                 };
             };
         };
@@ -1032,36 +1065,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FieldDefinition"];
-                };
-            };
-        };
-    };
-    v0_search_list: {
-        parameters: {
-            query: {
-                /** @description (опц.) Фильтр по конкретному документу */
-                doc_id?: number;
-                /** @description Количество результатов (top-k) */
-                k?: number;
-                /** @description Режим поиска: vector | hybrid */
-                mode?: string;
-                /** @description Поисковый запрос */
-                q: string;
-                /** @description (опц.) Фильтр по названию/части названия раздела (payload.section) */
-                section?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchResponse"][];
                 };
             };
         };
