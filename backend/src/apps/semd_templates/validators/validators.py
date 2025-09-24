@@ -1,9 +1,23 @@
+from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ValidationError
-from decimal import Decimal
 import re
 
 
-def not_empty(value):
+def _to_decimal(val, *, bound_label: str | None = None) -> Decimal:
+    """
+    Преобразует значение в Decimal или бросает ValidationError
+    с человекочитаемым сообщением.
+    """
+    try:
+        return Decimal(str(val))
+    except (InvalidOperation, TypeError, ValueError):
+        msg = "Значение должно быть числом"
+        if bound_label:
+            msg += f" ({bound_label})"
+        raise ValidationError(msg + ".")
+
+
+def not_empty(value, _=None):
     if value in (None, "", [], {}, ()):
         raise ValidationError("Значение не должно быть пустым.")
 
@@ -19,12 +33,16 @@ def min_length(value, length):
 
 
 def max_value(value, bound):
-    if Decimal(str(value)) > Decimal(str(bound)):
+    num = _to_decimal(value)
+    lim = _to_decimal(bound, bound_label="предел")
+    if num > lim:
         raise ValidationError(f"Значение должно быть ≤ {bound}.")
 
 
 def min_value(value, bound):
-    if Decimal(str(value)) < Decimal(str(bound)):
+    num = _to_decimal(value)
+    lim = _to_decimal(bound, bound_label="предел")
+    if num < lim:
         raise ValidationError(f"Значение должно быть ≥ {bound}.")
 
 
