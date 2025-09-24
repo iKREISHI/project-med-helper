@@ -1,0 +1,52 @@
+.Table {
+  width: 100%;
+}
+
+.Table thead {
+  color: var(--gray-3);
+}
+
+.Table th {
+  color: var(--gray-9);
+  font-weight: 400;
+}
+
+.Truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.Table th,
+.Table td {
+  padding: 1em;
+  transition: background-color 0.2s ease;
+}
+
+.TitleCell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.Title {
+  color: black;
+  cursor: pointer;
+}
+.Title:hover {
+  color: var(--accent-9);
+}
+
+@media (max-width: 768px) {
+  .Truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+  }
+  .HideOnMobile {
+    display: none;
+  }
+}
+

@@ -54,6 +54,11 @@ export const Header = () => {
                     Список шаблонов
                   </Link>
                 </li>
+                <li>
+                  <Link className={styles.SubLink} href="/documents">
+                    Документы
+                  </Link>
+                </li>
               </ul>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
