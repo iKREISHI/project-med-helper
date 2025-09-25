@@ -50,3 +50,25 @@
   }
 }
 
+.ChatBotWindow {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  top: 0; /* во всю высоту */
+  width: 480px; /* ширина окна чата */
+  background: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* поверх контента */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Скрываем чат на мобильных устройствах */
+@media (max-width: 768px) {
+  .ChatBotWindow {
+    display: none;
+  }
+}

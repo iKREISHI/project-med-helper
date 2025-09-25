@@ -446,6 +446,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v0/validate-document/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Получить документ
+         * @description Только read-доступ + POST-действие `validate`.
+         */
+        get: operations["v0_validate_document_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v0/validate-document/{id}/validate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Проверить документ
+         * @description Запускает серверную и опциональную LLM-валидацию всех полей.
+         *
+         *     Ответ теперь содержит поле `recommendations` — человеко-читаемый текст с ошибками и улучшениями. Поле `llm_payload` удалено.
+         */
+        post: operations["v0_validate_document_validate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -487,6 +529,18 @@ export interface components {
             /** @default false */
             stream: boolean;
         };
+        /** @description Результат проверки одного поля. */
+        DocumentFieldValidation: {
+            /** @description Ошибки серверных валидаторов. */
+            readonly server_errors: string[];
+            /** @description Ошибки LLM-валидации (если включена). */
+            readonly llm_errors: string[];
+            /** @description Итоговый статус поля.
+             *
+             *     * `valid` - valid
+             *     * `invalid` - invalid */
+            readonly status: components["schemas"]["Status350Enum"];
+        };
         DocumentFieldValue: {
             readonly id: number;
             readonly field: components["schemas"]["FieldDefinitionSlim"];
@@ -517,6 +571,20 @@ export interface components {
             template_id: number;
             fields: components["schemas"]["DocumentFieldValueCreate"][];
         };
+        /** @description Ответ на POST /documents/{id}/validate/ */
+        DocumentInstanceValidationResponse: {
+            /** @description Сводный статус документа.
+             *
+             *     * `valid` - valid
+             *     * `invalid` - invalid */
+            readonly overall_status: components["schemas"]["OverallStatusEnum"];
+            /** @description Подробные результаты по каждому полю. */
+            readonly fields: {
+                [key: string]: components["schemas"]["DocumentFieldValidation"];
+            };
+            /** @description Человеческие рекомендации по исправлению и улучшению документа. */
+            readonly recommendations: string;
+        };
         DocumentOut: {
             readonly id: number;
             title?: string;
@@ -525,7 +593,7 @@ export interface components {
             source?: string;
             content_type?: string;
             language?: string;
-            status?: components["schemas"]["StatusEnum"];
+            status?: components["schemas"]["DocumentOutStatusEnum"];
             error?: string;
             meta?: unknown;
             /** Format: date-time */
@@ -533,6 +601,14 @@ export interface components {
             /** Владелец */
             owner: number;
         };
+        /**
+         * @description * `UPLOADED` - Uploaded
+         *     * `PARSED` - Parsed
+         *     * `INDEXED` - Indexed
+         *     * `FAILED` - Failed
+         * @enum {string}
+         */
+        DocumentOutStatusEnum: "UPLOADED" | "PARSED" | "INDEXED" | "FAILED";
         DocumentTemplate: {
             readonly id: number;
             /**
@@ -669,6 +745,12 @@ export interface components {
          * @enum {string}
          */
         ModeEnum: "vector" | "hybrid";
+        /**
+         * @description * `valid` - valid
+         *     * `invalid` - invalid
+         * @enum {string}
+         */
+        OverallStatusEnum: "valid" | "invalid";
         /** @description count / next / previous / results */
         PaginatedChatMessage: {
             count: number;
@@ -798,13 +880,11 @@ export interface components {
             results: components["schemas"]["SearchHit"][];
         };
         /**
-         * @description * `UPLOADED` - Uploaded
-         *     * `PARSED` - Parsed
-         *     * `INDEXED` - Indexed
-         *     * `FAILED` - Failed
+         * @description * `valid` - valid
+         *     * `invalid` - invalid
          * @enum {string}
          */
-        StatusEnum: "UPLOADED" | "PARSED" | "INDEXED" | "FAILED";
+        Status350Enum: "valid" | "invalid";
         TemplateField: {
             /**
              * Порядок отображения
@@ -1578,6 +1658,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MinimalUser"];
+                };
+            };
+        };
+    };
+    v0_validate_document_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Документ. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentInstance"];
+                };
+            };
+        };
+    };
+    v0_validate_document_validate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Документ. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DocumentInstance"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentInstanceValidationResponse"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
