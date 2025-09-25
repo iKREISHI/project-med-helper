@@ -40,6 +40,17 @@ export default function ChatBot() {
     }
   }, [data]);
 
+  function formatDate(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
   // Обработка отправки сообщения
   const handleMessage = async (messageContent: string) => {
     if (!messageContent.trim()) return;
@@ -138,7 +149,7 @@ export default function ChatBot() {
                   msg.role === 'user' ? styles.UserMessage : styles.BotMessage
                 }
               >
-                <ChatCloud isSending={msg.role === 'user'} time="12:40">
+                <ChatCloud isSending={msg.role === 'user'} time={formatDate(msg.created_at)}>
                   {msg.isThinking ? (
                     <Flex align="center" gap="2">
                       <Spinner size="2" />

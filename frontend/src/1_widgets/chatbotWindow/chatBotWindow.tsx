@@ -6,7 +6,6 @@ import styles from "./page.module.css";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github.css";
 import { useMessage } from "@/2_features/message/useMessage";
 import { sendMessage } from "@/3_entities/message/api/addNewMessage";
 import { useParams } from "next/navigation";
@@ -179,7 +178,7 @@ export default function ChatBotWindow({ documentId }: ChatBotWindowProps) {
 
   return (
     <Flex direction="column" style={{ height: "100vh" }}>
-      <Flex align="center" justify="space-between" style={{ padding: "12px" }}>
+      <Flex align="center" justify="between" style={{ padding: "12px" }}>
         <div style={{ fontWeight: 600 }}>Чат-бот</div>
         <Button
           size="2"
@@ -218,7 +217,7 @@ export default function ChatBotWindow({ documentId }: ChatBotWindowProps) {
       </div>
     </Flex>
   );
-}
+}1
 
 /* Простейший input - можно заменить на свой компонент */
 function ResizableInput({ onSend, disabled }: { onSend: (text: string) => void; disabled?: boolean }) {
