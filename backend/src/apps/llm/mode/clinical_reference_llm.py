@@ -226,6 +226,7 @@ class ClinicalLLM:
             doc_id=doc_id,
             section=section,
         )
+        logger.info("context: %s", context)
 
         messages = self._build_prompt(context, question)
         merged_params = {**self.provider_params, **(provider_params or {})}

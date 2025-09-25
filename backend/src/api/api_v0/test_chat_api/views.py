@@ -121,5 +121,5 @@ class ChatViewSet(viewsets.ViewSet):
                 headers={"Cache-Control": "no-cache"},
             )
 
-        answer: str = llm.ask(question)
+        answer: str = llm.ask(question, k=10, search_mode='hybrid')
         return Response({"answer": answer}, status=status.HTTP_200_OK)
