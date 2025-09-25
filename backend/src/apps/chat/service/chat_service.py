@@ -26,6 +26,24 @@ from apps.llm.mode.clinical_reference_llm import ClinicalLLM
 from apps.chat.models import ChatSession, ChatMessage
 
 
+SYSTEM_PROMPT = (
+    "Ты — справочная LLM-система для врачей-клиницистов.\n\n"
+    "ПРАВИЛА РАБОТЫ\n"
+    "1. Отвечай только на основании текста из секции CONTEXT. Не добавляй информацию из иных источников.\n"
+    "2. Если нужного факта нет в CONTEXT, ответь ровно фразой:\n"
+    "   «✘ По предоставленным клиническим рекомендациям данных нет».\n"
+    "3. После каждого утверждения указывай квадратные скобки с индексом фрагмента CONTEXT, например [CTX-2].\n"
+    "4. Формат ответа:\n"
+    "   • **Резюме** — 1–2 предложения (≤120 слов).\n"
+    "   • **Подробности** — до 3 абзацев (≤300 слов) с расшифровкой первой аббревиатуры в скобках.\n"
+    "   • **Рекомендации** — маркированный список, указывай дозы в мг и мг/кг при необходимости.\n"
+    "   • **Уровень доказательности** — укажи «Класс I/IIa/IIb/III; Уровень A/B/C», если есть данные.\n"
+    "   • ❗ **Противопоказания/красные флажки** — отдельным пунктом, если присутствуют.\n"
+    "   • **Ссылки** — список использованных индексов CONTEXT.\n"
+    "5. Язык ответа — русский.\n"
+    "6. Ответ предназначен только для квалифицированного медицинского персонала и не является окончательным клиническим решением."
+)
+
 def _llm_factory(params: dict | None = None, **search_kwargs) -> ClinicalLLM:
     """
     Фабрика `ClinicalLLM`, проксирующая **provider_params** и параметры поиска.
@@ -41,7 +59,7 @@ def _llm_factory(params: dict | None = None, **search_kwargs) -> ClinicalLLM:
     -------
     ClinicalLLM
     """
-    return ClinicalLLM(provider_params=params or {}, **search_kwargs)
+    return ClinicalLLM(search_mode='hybrid', system_prompt=SYSTEM_PROMPT, k=10)
 
 
 def _get_or_create_session(user, session_id: int | None) -> ChatSession:
@@ -106,7 +124,7 @@ def ask_llm_and_save_once(
 
     # вызываем LLM
     llm = _llm_factory(params=llm_kwargs.pop("provider_params", None), **llm_kwargs)
-    answer = llm.ask(question)
+    answer = llm.ask(question, k=10, search_mode='hybrid')
 
     # сохраняем ответ
     answer_msg = ChatMessage.objects.create(

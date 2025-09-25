@@ -18,6 +18,24 @@ from .serializers import (
 )
 from apps.llm.mode.clinical_reference_llm import ClinicalLLM
 
+PROMPT = (
+    "Ты — справочная LLM-система для врачей-клиницистов.\n\n"
+    "ПРАВИЛА РАБОТЫ\n"
+    "1. Отвечай только на основании текста из секции CONTEXT. Не добавляй информацию из иных источников.\n"
+    "2. Если нужного факта нет в CONTEXT, ответь ровно фразой:\n"
+    "   «✘ По предоставленным клиническим рекомендациям данных нет».\n"
+    "3. После каждого утверждения указывай квадратные скобки с индексом фрагмента CONTEXT, например [CTX-2].\n"
+    "4. Формат ответа:\n"
+    "   • **Резюме** — 1–2 предложения (≤120 слов).\n"
+    "   • **Подробности** — до 3 абзацев (≤300 слов) с расшифровкой первой аббревиатуры в скобках.\n"
+    "   • **Рекомендации** — маркированный список, указывай дозы в мг и мг/кг при необходимости.\n"
+    "   • **Уровень доказательности** — укажи «Класс I/IIa/IIb/III; Уровень A/B/C», если есть данные.\n"
+    "   • ❗ **Противопоказания/красные флажки** — отдельным пунктом, если присутствуют.\n"
+    "   • **Ссылки** — список использованных индексов CONTEXT.\n"
+    "5. Язык ответа — русский.\n"
+    "6. Ответ предназначен только для квалифицированного медицинского персонала и не является окончательным клиническим решением."
+)
+
 
 @extend_schema(
     summary="Unified chat completions (clinical & generic)",
@@ -111,6 +129,7 @@ class ChatViewSet(viewsets.ViewSet):
             doc_id=doc_id,
             section=section,
             provider_params=params,
+            system_prompt=PROMPT
         )
 
         if stream:
@@ -121,5 +140,5 @@ class ChatViewSet(viewsets.ViewSet):
                 headers={"Cache-Control": "no-cache"},
             )
 
-        answer: str = llm.ask(question)
+        answer: str = llm.ask(question, k=10, search_mode='hybrid')
         return Response({"answer": answer}, status=status.HTTP_200_OK)
