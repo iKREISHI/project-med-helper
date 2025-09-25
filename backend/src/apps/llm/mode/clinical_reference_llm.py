@@ -58,14 +58,18 @@ __all__ = ["ClinicalLLM", "DEFAULT_SYSTEM_PROMPT"]
 logger = logging.getLogger("django.clinical_llm")
 
 DEFAULT_SYSTEM_PROMPT = (
-    "Ты — справочная LLM-система для врачей-клиницистов.\n"
-    "Правила работы:\n\n"
-    "1. Отвечай **только** на основании текста из секции CONTEXT.\n"
-    "2. Если факта нет в CONTEXT — честно ответь:\n"
+    "Ты — справочная LLM-система для врачей-клиницистов.\n\n"
+    "ПРАВИЛА РАБОТЫ\n"
+    "1. Отвечай только на основании текста из секции CONTEXT. Не добавляй информацию из иных источников.\n"
+    "2. Если нужного факта нет в CONTEXT, ответь ровно фразой:\n"
     "   «✘ По предоставленным клиническим рекомендациям данных нет».\n"
-    "3. Сохраняй нумерованные ссылки: после каждого утверждения ставь квадратные скобки с индексом фрагмента, например [1] или [2].\n"
-    "4. Стиль ответа: кратко, по существу, 1-2 абзаца, затем «Рекомендации» списком.\n"
-    "5. Язык ответа — русский."
+    "3. После каждого утверждения указывай квадратные скобки с индексом фрагмента CONTEXT, например [CTX-2].\n"
+    "4. Формат ответа:\n"
+    "   • Краткое заключение (1–2 предложения, ≤120 слов).\n"
+    "   • Раздел «Рекомендации» маркированным списком.\n"
+    "   • При необходимости раздел «Ссылки» списком индексов.\n"
+    "5. Язык ответа — русский.\n"
+    "6. Ответ предназначен только для квалифицированного медицинского персонала и не является окончательным клиническим решением."
 )
 
 _BULLET_RE = re.compile(r"^[\u2022•\-–]\s*", flags=re.MULTILINE)
@@ -187,14 +191,27 @@ class ClinicalLLM:
         return cleaned
 
     def _build_prompt(self, context: List[str], question: str) -> List[Dict[str, str]]:
+        """
+        Формирует полный chat-prompt с явными секциями CONTEXT, QUESTION, ANSWER.
+        Контекст нумеруется как [CTX-n] для точных ссылок.
+        """
         numbered_context = "\n".join(
-            f"[{i + 1}] {frag}" for i, frag in enumerate(context)
+            f"[CTX-{i + 1}] {frag}" for i, frag in enumerate(context)
         )
-        context_block = f"<CONTEXT>\n{numbered_context}\n</CONTEXT>"
+
+        user_content = (
+            "=====================\n"
+            f"CONTEXT:\n{numbered_context}\n"
+            "=====================\n"
+            f"QUESTION:\n{question}\n"
+            "=====================\n"
+            "ANSWER:"
+        )
+
         return [
             {"role": "system", "content": self.system_prompt},
-            {"role": "assistant", "content": "Понял правила."},
-            {"role": "user", "content": f"{context_block}\n\n<user>{question}</user>"},
+            {"role": "assistant", "content": "Правила получены и поняты."},
+            {"role": "user", "content": user_content},
         ]
 
     def ask(
