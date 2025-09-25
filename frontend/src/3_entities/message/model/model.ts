@@ -9,7 +9,6 @@ export type ChatResponse = components['schemas']['ChatResponse']
 export type PaginatedChatList = components['schemas']['PaginatedChatMessage']
 
 export interface PaginatedChatListParams{
-    chatId: number
     page: number;
     page_size: number
 }

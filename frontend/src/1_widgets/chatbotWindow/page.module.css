@@ -1,0 +1,58 @@
+.RootPage {
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.Container {
+    display: flex;
+    flex-direction: row;  
+    justify-content: center; 
+    align-items: center;     
+    min-height: 80vh;        
+    margin: 0 auto;
+    max-width: 900px;        
+}
+
+.ChatContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%; 
+  overflow: hidden; 
+}
+
+.MessagesScroll {
+  flex: 1 1 auto;    
+  overflow-y: auto;   
+  -webkit-overflow-scrolling: touch; /* плавный скролл на мобильных */
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.UserMessage {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.BotMessage {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    font-size: 10px;
+}
+
+.MessagesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 24px; /* дополнительно, чтобы ховеры/паддинги были видны */
+}
+
+.InputWrapper {
+  position: sticky;
+  bottom: 0;
+  background: rgba(255,255,255,0.9); /* или прозрачный фон */
+  padding: 10px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  z-index: 5;
+}
